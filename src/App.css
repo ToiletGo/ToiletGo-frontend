@@ -1,0 +1,18 @@
+a {
+  color: #333;
+  text-decoration: none;
+}
+
+
+body {
+  font-family: 'Pretendard', sans-serif;
+  margin: 0;
+  
+}
+a:hover {
+  text-decoration: none;
+}
+
+a:visited {
+  color: #333;
+}
