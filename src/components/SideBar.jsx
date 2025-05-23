@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import MenuModal from './MenuModal';
 
 const Wrapper = styled.div`
     height: 100%;
+    z-index: 20;
+    box-shadow: 4px 0px 5px -2px rgba(0,0,0,0.16);
+    position: relative;
 `;
 
 const Outer = styled.div`
     display: flex;
     flex-direction: column;
     height: 735px;
-    //box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
 `;
 
 const BarElement = styled.div`
@@ -25,57 +28,62 @@ const BarElement = styled.div`
     color: ${({ selected }) => (selected ? 'white' : '#4a95e5')};
     border-bottom: 2px solid #d9d9d9;
     cursor: pointer;
+    user-select: none;
     transition: background-color 0.2s, color 0.2s;
 `;
 
-const LoginWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #4a95e5;
-    gap: 5px;
-    cursor: pointer;
-`;
-
-const LoginIcon = styled.img`
-    width: 20px;
-    height: 20px;
-`;
-
 const SideBar = () => {
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedMenu, setSelectedMenu] = useState(0);
     
-    const handleSelect = (index) => {
-        setSelectedIndex(index);
+    const openMenu = (index) => {
+        setSelectedMenu(index);
+
+    };
+
+    const closeMenu = () => {
+        setSelectedMenu(0);
     };
 
     return (
-        <Wrapper>
-            <Outer>
-                <BarElement>
-                    <LoginWrapper>
-                        <LoginIcon src={login} alt="Login" onClick={() => alert('로그인 클릭!')} />
+        <>
+            <Wrapper>
+                <Outer>
+                    <BarElement selected={false} onClick={() => navigator('/login')}>
                         로그인
-                    </LoginWrapper>
-                </BarElement>
-                <BarElement selected={selectedIndex === 1} onClick={() => handleSelect(1)}>
-                    <span>화장실</span>
-                    <span>찾기</span>
-                </BarElement>
-                <BarElement selected={selectedIndex === 2} onClick={() => handleSelect(2)}>
-                    <span>화장실</span>
-                    <span>등록</span>
-                </BarElement>
-                <BarElement selected={selectedIndex === 3} onClick={() => handleSelect(3)}>
-                    미션
-                </BarElement>
-                <BarElement selected={selectedIndex === 4} onClick={() => handleSelect(4)}>
-                    프로필
-                </BarElement>
-            </Outer>
-        </Wrapper>
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 1} onClick={() => openMenu(1)}>
+                        <span>화장실</span>
+                        <span>찾기</span>
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 2} onClick={() => openMenu(2)}>
+                        <span>화장실</span>
+                        <span>등록</span>
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 3} onClick={() => openMenu(3)}>
+                        미션
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 4} onClick={() => openMenu(4)}>
+                        <span>선물</span>
+                        <span>상점</span>
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 5} onClick={() => openMenu(5)}>
+                        프로필
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 6} onClick={() => openMenu(6)}>
+                        내 화장실
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 7} onClick={() => openMenu(7)}>
+                        내 리뷰
+                    </BarElement>
+                    <BarElement selected={selectedMenu === 8} onClick={() => openMenu(8)}>
+                        내 선물
+                    </BarElement>
+                </Outer>
+            </Wrapper>
+            {selectedMenu !== 0 && (
+                <MenuModal selectedMenu={selectedMenu} onClose={closeMenu} />
+            )}
+        </>
     )
 }
 

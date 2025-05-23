@@ -16,3 +16,7 @@ a:hover {
 a:visited {
   color: #333;
 }
+
+input:focus {
+  outline: none;
+}
