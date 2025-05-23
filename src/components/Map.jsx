@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import Indicator from './Indicator';
 
 const MapWrapper = styled.div`
     width: 100%;
@@ -19,7 +18,7 @@ const Toggle = styled.div`
 `;
 
 const MapContainer = styled.div`
-    width: 100%;
+    width: 1470px;
     height: 735px;
 `;
 
