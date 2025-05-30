@@ -6,14 +6,12 @@ const Wrapper = styled.div`
     position: relative;
     flex-direction: column;
     height: 700px;
-    user-select: none;
 
 `;
 
 const MissionWrapper = styled.div`
     display: flex;
     gap: 10px;
-    user-select: none;
     margin: 10px 0;
 `;
 

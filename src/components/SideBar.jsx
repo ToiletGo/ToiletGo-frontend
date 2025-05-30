@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import MenuModal from './MenuModal';
+import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.div`
-    height: 100%;
+    width: 10vw;
+    height: 100vh;
     z-index: 20;
+    background-color: white;
     box-shadow: 4px 0px 5px -2px rgba(0,0,0,0.16);
     position: relative;
 `;
@@ -12,7 +15,7 @@ const Wrapper = styled.div`
 const Outer = styled.div`
     display: flex;
     flex-direction: column;
-    height: 735px;
+    min-height: 735px;
 `;
 
 const BarElement = styled.div`
@@ -28,12 +31,12 @@ const BarElement = styled.div`
     color: ${({ selected }) => (selected ? 'white' : '#4a95e5')};
     border-bottom: 2px solid #d9d9d9;
     cursor: pointer;
-    user-select: none;
     transition: background-color 0.2s, color 0.2s;
 `;
 
 const SideBar = () => {
     const [selectedMenu, setSelectedMenu] = useState(0);
+    const navigate = useNavigate();
     
     const openMenu = (index) => {
         setSelectedMenu(index);
@@ -48,7 +51,7 @@ const SideBar = () => {
         <>
             <Wrapper>
                 <Outer>
-                    <BarElement selected={false} onClick={() => navigator('/login')}>
+                    <BarElement selected={false} onClick={() => navigate('/login')}>
                         로그인
                     </BarElement>
                     <BarElement selected={selectedMenu === 1} onClick={() => openMenu(1)}>

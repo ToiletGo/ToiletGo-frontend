@@ -1,23 +1,26 @@
 import styled from 'styled-components';
+import RedPing from '../assets/icon/red_ping.svg';
+import YellowPing from '../assets/icon/yellow_ping.svg';
+import BluePing from '../assets/icon/blue_ping.svg';
 
 const Wrapper = styled.div`
-    width: 150px;
-    height: 50px;
     display: flex;
     position: absolute;
     bottom: 20px;
     right: 20px;
     justify-content: center;
     align-items: center;
+    width: 150px;
+    height: 50px;
     background-color: white;
     border-radius: 10px;
+    padding: 5px;
     gap: 10px;
     z-index: 10;
     box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
-    user-select: none;
 `;
 
-const BallWrapper = styled.div`
+const PingWrapper = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -26,29 +29,26 @@ const BallWrapper = styled.div`
     font-size: 12px;
 `;
 
-const Ball = styled.div`
+const Ping = styled.img`
     width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: #4a95e5;
+    height: 30px;
 `;
 
 const Indicator = () => {
     return (
         <Wrapper>
-
-            <BallWrapper>
-                <Ball style={{backgroundColor:'#e54a4a'}}/>
+            <PingWrapper>
+                <Ping src={RedPing} alt="bad" />
                 나쁨
-            </BallWrapper>
-            <BallWrapper>
-                <Ball style={{backgroundColor:'#f3da1e'}}/>
+            </PingWrapper>
+            <PingWrapper>
+                <Ping src={YellowPing} alt="normal" />
                 평범
-            </BallWrapper>
-            <BallWrapper>
-                <Ball style={{backgroundColor:'#4a95e5'}}/>
+            </PingWrapper>
+            <PingWrapper>
+                <Ping src={BluePing} alt="good" />
                 좋음
-            </BallWrapper>
+            </PingWrapper>
         </Wrapper>
     )
 }

@@ -13,7 +13,6 @@ const Wrapper = styled.div`
     position: relative;
     flex-direction: column;
     height: 700px;
-    user-select: none;
 `;
 
 const ListWrapper = styled.div`

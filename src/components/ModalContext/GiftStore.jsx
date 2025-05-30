@@ -14,7 +14,6 @@ const Wrapper = styled.div`
     position: relative;
     flex-direction: column;
     height: 700px;
-    user-select: none;
 `;
 
 const Header = styled.div`
@@ -25,7 +24,6 @@ const Header = styled.div`
 
 const PointWrapper = styled.div`
     display: flex;
-    user-select: none;
     gap: 5px;
 `;
 
@@ -38,23 +36,8 @@ const ListWrapper = styled.div`
 const GiftWrapper = styled.div`
     display: flex;
     position: relative;
-    user-select: none;
     gap: 20px;
     margin: 10px 0;
-`;
-
-const Overlay = styled.div`
-    display: flex;
-    position: absolute;
-    justify-content: center;
-    align-items: center;
-    width: 96%;
-    height: 100%;
-    top: 0;
-    font-size: 25px;
-    font-weight: bold;
-    background-color: #dfdfdf;
-    opacity: 0.8;
 `;
 
 const GiftImg = styled.img`
@@ -70,7 +53,6 @@ const GiftDetail = styled.div`
     justify-content: space-between;
     width: 150px;
     padding: 10px 0;
-    user-select: none;
 `;
 
 const DetailRow = styled.div`
@@ -100,6 +82,7 @@ const BuyBtn = styled.div`
     color: white;
     border: none;
     border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
     cursor: pointer;
     &:disabled {
         background-color: #aaa;

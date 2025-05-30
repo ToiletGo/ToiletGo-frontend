@@ -1,11 +1,11 @@
 import styled from "styled-components";
-import Logo from './Logo';
+import SearchBar from './SearchBar';
 
 const Wrapper = styled.div`
     display: flex;
     justify-content: space-between;
     position: absolute;
-    width: 1470px;
+    width: 100%;
     top: 20px;
 `;
 
@@ -29,12 +29,11 @@ const Filter = styled.div`
     margin-left: 20px;
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
     z-index: 10;
     font-size: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
     background-color: white;
     color: #1779e2;
-    user-select: none;
     cursor: pointer;
     :hover {
         background-color: #0f5bb5;
@@ -50,10 +49,9 @@ const MyPosition = styled.div`
     color: #1779e2;
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
     z-index: 10;
     font-size: 16px;
-    user-select: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
     cursor: pointer;
     :hover {
         background-color: #0f5bb5;
@@ -64,7 +62,7 @@ const Header = () => {
     return (
         <Wrapper>
             <LeftSide>
-                <Logo />
+                <SearchBar />
                 <Filter>필터</Filter>
             </LeftSide>
             <RightSide>

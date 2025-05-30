@@ -9,7 +9,6 @@ const Wrapper = styled.div`
     height: 40px;
     border-radius: 10px;
     background-color: white;
-    user-select: none;
 `;
 
 const LogoWrapper = styled.div`
@@ -34,7 +33,7 @@ const Title = styled.div`
     color: #4a95e5;
 `;
 
-const SearchBar = styled.input`
+const Search = styled.input`
     width: 200px;
     font-size: 16px;
     border: none;
@@ -42,8 +41,7 @@ const SearchBar = styled.input`
     margin-right: 10px;
 `;
 
-const Logo = () => {
-
+const SearchBar = () => {
 
     return (
         <Wrapper>
@@ -51,9 +49,9 @@ const Logo = () => {
                 <Icon src={wc} alt="Logo" />
                 <Title>ToiletGo</Title>
             </LogoWrapper>
-            <SearchBar type="text" placeholder="Search..." />
+            <Search type="text" placeholder="Search..." />
         </Wrapper>
     )
 }
 
-export default Logo;
+export default SearchBar;
