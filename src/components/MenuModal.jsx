@@ -7,6 +7,7 @@ import GiftStore from './ModalContext/GiftStore';
 import Mission from './ModalContext/Mission';
 import RegisterToilet from './ModalContext/RegisterToilet';
 import MyGift from './ModalContext/MyGift';
+import leftBtn from '../assets/icon/left_btn.svg';
 
 const slideIn = keyframes`
     from {
@@ -24,33 +25,26 @@ const Wrapper = styled.div`
     top: 0;
     left: 65px;
     width: 350px;
-    height: 735px;
+    height: 100vh;
     background-color: white;
     box-shadow: -2px 0px 5px rgba(0,0,0,0.16);
     z-index: 15;
     animation: ${slideIn} 0.3s ease-out;
 `;
 
-const CollapseButton = styled.button`
+const CloseBtn = styled.img`
     position: absolute;
     top: 50%;
     right: -15px;
     transform: translateY(-50%);
     width: 30px;
     height: 30px;
-    background-color: #4a95e5;
-    color: white;
-    border: none;
-    border-radius: 50%;
     cursor: pointer;
     z-index: 20;
-    :hover {
-        background-color: #3b7bbf;
-    }
 `;
 
 const MenuContent = styled.div`
-    padding: 20px;
+    padding: 0 20px;
 `;
 
 const MenuModal = ({ selectedMenu, onClose }) => {
@@ -79,7 +73,7 @@ const MenuModal = ({ selectedMenu, onClose }) => {
 
     return (
         <Wrapper>
-            <CollapseButton onClick={onClose}>←</CollapseButton>
+            <CloseBtn onClick={onClose} src={leftBtn} alt="leftBtn" />
             <MenuContent>{renderContent()}</MenuContent>
         </Wrapper>
     );

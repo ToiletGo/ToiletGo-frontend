@@ -1,129 +1,235 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import InfoBox from '../components/InfoBox.jsx';
+import { createRoot } from 'react-dom/client';
+import axios from '../api/axios';
+import RedPing from '../assets/icon/red_ping.svg';
+import YellowPing from '../assets/icon/yellow_ping.svg';
+import BluePing from '../assets/icon/blue_ping.svg';
+import { useNavigate } from 'react-router-dom';
 
-const MapWrapper = styled.div`
-    width: 100%;
-    height: 100%;
-`;
-
-const Toggle = styled.div`
-    width: 20px;
-    height: 20px;
-    border-radius: 50px;
-    background-color: ${({ selected }) => (selected ? 'transparent' : '#d9d9d9')};
-    margin-right: 10px;
-    cursor: pointer;
-    border: none;
-    position: relative;
+const Wrapper = styled.div`
+    width: 100vw;
+    height: 100vh;
 `;
 
 const MapContainer = styled.div`
-    width: 1470px;
-    height: 735px;
+    width: 100vw;
+    min-height: 735px;
 `;
 
 export default function Map() {
-    const container = useRef(null);
     const mapRef = useRef(null);
+    const container = useRef(null);
+    const overlayRef = useRef(null);
+    const overlayContainerRef = useRef(null);
+    const overlayReactRootRef = useRef(null);
+    
+    const [center, setCenter] = useState({ lat: 37.537375, lng: 127.082000 });
+    const [level, setLevel] = useState(5);
     const [markers, setMarkers] = useState([]);
-    const [searchToggle, setSearchToggle] = useState(false);
+    const [selectedToilet, setSelectedToilet] = useState(null);
+    const [overlayPosition, setOverlayPosition] = useState(null);
 
-    const addressList = [
-        "서울특별시 광진구 자양로 100",
-        "서울특별시 광진구 자양로 110",
-        "서울특별시 광진구 자양로 120",
-        "서울특별시 광진구 자양로 130",
-        "서울특별시 광진구 자양로 140",
-        "서울특별시 광진구 자양로 150",
-        "서울특별시 광진구 자양로 160",
-        "서울특별시 광진구 자양로 170",
-        "서울특별시 광진구 자양로 180",
-        "서울특별시 광진구 자양로 190",
-        "서울특별시 광진구 능동로 10",
-        "서울특별시 광진구 능동로 20",
-        "서울특별시 광진구 능동로 30",
-        "서울특별시 광진구 능동로 40",
-        "서울특별시 광진구 능동로 50",
-        "서울특별시 광진구 능동로 60",
-        "서울특별시 광진구 능동로 70",
-        "서울특별시 광진구 능동로 80",
-        "서울특별시 광진구 능동로 90",
-        "서울특별시 광진구 능동로 100",
-        "서울특별시 광진구 광나루로 10",
-        "서울특별시 광진구 광나루로 20",
-        "서울특별시 광진구 광나루로 30",
-        "서울특별시 광진구 광나루로 40",
-        "서울특별시 광진구 광나루로 50",
-        "서울특별시 광진구 광나루로 60",
-        "서울특별시 광진구 광나루로 70",
-        "서울특별시 광진구 광나루로 80",
-        "서울특별시 광진구 광나루로 90",
-        "서울특별시 광진구 광나루로 100",
+    const navigate = useNavigate();
+
+    // 테스트용 mock data (API 연결 시 삭제)
+    const toilets = [
+        {
+            toiletId: 1,
+            latitude: 37.537375,
+            longtitude: 127.082,
+            buildingName: '중곡 공중화장실',
+            rating: 4.2,
+            reviewCount: 10,
+            toiletStatus: "여 1, 남 1",
+            hasDiaperTable: false,
+            hasHandicapAcces: true,
+            hasBidet: true,
+            hasTissue: true,
+            note: '중곡역 출구 앞에 위치한 화장실입니다.',
+        },
+        {
+            toiletId: 2,
+            latitude: 37.539,
+            longtitude: 127.085,
+            buildingName: '자양 화장실',
+            rating: 2.3,
+            reviewCount: 20,
+            toiletStatus: "여 3, 남 3",
+            hasDiaperTable: true,
+            hasHandicapAcces: false,
+            hasBidet: false,
+            hasTissue: false,
+            note: '자양동 공원 내 위치',
+        },
+        {
+            toiletId: 3,
+            latitude: 37.535,
+            longtitude: 127.078,
+            buildingName: '능동 화장실',
+            rating: 1.4,
+            reviewCount: 15,
+            toiletStatus: "여 4, 남 4",
+            hasDiaperTable: true,
+            hasHandicapAcces: true,
+            hasBidet: true,
+            hasTissue: true,
+            note: '능동로 도로변에 위치한 넓은 화장실',
+        },
     ];
 
+    // 지도 초기화
     useEffect(() => {
         window.kakao.maps.load(() => {
-        const map = new window.kakao.maps.Map(container.current, {
-            center: new window.kakao.maps.LatLng(37.537375, 127.082000), // 광진구 중심
-            level: 5,
-        });
-        mapRef.current = map;
+            const map = new window.kakao.maps.Map(container.current, {
+                center: new window.kakao.maps.LatLng(center.lat, center.lng),
+                level: level,
+            });
 
-        const geocoder = new window.kakao.maps.services.Geocoder();
-        const tempMarkers = [];
-        const bounds = new window.kakao.maps.LatLngBounds();
+            mapRef.current = map;
 
-        addressList.forEach((address) => {
-            geocoder.addressSearch(address, (result, status) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-                const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-                const marker = new window.kakao.maps.Marker({ position: coords });
-                marker.setMap(map);
-                tempMarkers.push(marker);
-                bounds.extend(coords);
-                if (tempMarkers.length === addressList.length) {
-                map.setBounds(bounds);
-                setMarkers(tempMarkers);
-                }
-            }
+            // 중심 좌표, 줌 레벨 추적
+            window.kakao.maps.event.addListener(map, 'center_changed', () => {
+                const center = map.getCenter();
+                setCenter({ lat: center.getLat(), lng: center.getLng() });
+            });
+
+            window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
+                setLevel(map.getLevel());
+            });
+
+            // CustomOverlay DOM 컨테이너 초기화
+            overlayContainerRef.current = document.createElement('div');
+
+            // CustomOverlay 상에서 지도 클릭 이벤트 발생 방지
+            overlayContainerRef.current.style.pointerEvents = 'none';
+
+            overlayRef.current = new window.kakao.maps.CustomOverlay({
+                content: overlayContainerRef.current,
+                xAnchor: 0.5,
+                yAnchor: 1.2,
             });
         });
-        });
     }, []);
-
-    
-
+   
+    // 중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> API 요청
     useEffect(() => {
-        if (!mapRef.current || markers.length === 0) return;
-
         const map = mapRef.current;
+        if (!map) return;
 
-        const updateVisibleMarkers = () => {
-        if (!searchToggle) return;
         const bounds = map.getBounds();
+        const sw = bounds.getSouthWest(); // 남서
+        const ne = bounds.getNorthEast(); // 북동
 
-        markers.forEach((marker) => {
-            const position = marker.getPosition();
-            if (bounds.contain(position)) {
+        const params = {
+            minLat: sw.getLat(),
+            minLng: sw.getLng(),
+            maxLat: ne.getLat(),
+            maxLng: ne.getLng(),
+        }
+
+        // 백엔드에 범위 내 장소 요청
+        axios.get('/api/toilets', { params })
+            .then(res => {
+                console.log(res.data);
+                renderMarkers(res.data);
+            })
+            .catch(err => console.error('화장실 불러오기 실패:', err));
+
+        // 테스트용 mock data 사용(API 연결 시 삭제)
+//        renderMarkers(toilets);
+    }, [center, level]);
+
+    // 마커 렌더링 함수
+    const renderMarkers = (places) => {
+        const map = mapRef.current;
+        const newMarkers = [];
+
+        // 기존 마커 제거
+        markers.forEach(marker => marker.setMap(null));
+
+        places.forEach((place) => {
+            const { latitude, longtitude, buildingName, rating, reviewCount, toiletStatus, hasDiaperTable, hasHandicapAccess, hasBidet, hasTissue, note } = place;
+
+            // 핑 이미지 선택
+            let imageSrc = BluePing;
+            if (rating < 2.0) imageSrc = RedPing;
+            else if (rating < 3.5) imageSrc = YellowPing;
+
+            const imageSize = new window.kakao.maps.Size(30, 40);
+            const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
+
+            const position = new window.kakao.maps.LatLng(latitude, longtitude);
+
+            // 마커 생성
+            const marker = new window.kakao.maps.Marker({
+                position,
+                image: markerImage,
+            });
+
+            marker.addListener('click', () => {
+                setSelectedToilet({ buildingName, rating, reviewCount, toiletStatus, hasDiaperTable, hasHandicapAccess, hasBidet, hasTissue, note });
+                setOverlayPosition(position);
+            });
+
             marker.setMap(map);
-            } else {
-            marker.setMap(null);
-            }
+            newMarkers.push(marker);
         });
-        };
 
-        window.kakao.maps.event.addListener(map, 'center_changed', updateVisibleMarkers);
-        window.kakao.maps.event.addListener(map, 'zoom_changed', updateVisibleMarkers);
+        setMarkers(newMarkers);
+    };
+
+    // CustomOverlay 렌더링
+    useEffect(() => {
+        if (!overlayRef.current || !overlayPosition || !selectedToilet) return;
+
+        // 처음 한 번만 createRoot 호출
+        if (!overlayReactRootRef.current) {
+            overlayReactRootRef.current = createRoot(overlayContainerRef.current);
+        }
+
+        overlayReactRootRef.current.render(
+            <InfoBox
+                data={selectedToilet}
+                onClose={() => {
+                    setSelectedToilet(null);
+                    overlayRef.current.setMap(null);
+                }}
+                navigate={() => {
+                    navigate('/');
+                }}
+            />
+        );
+
+        overlayRef.current.setPosition(overlayPosition);
+        overlayRef.current.setMap(mapRef.current);
+    }, [overlayPosition, selectedToilet]);
+
+    // InfoBox 외부 클릭 시 닫기
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (
+                overlayContainerRef.current &&
+                !overlayContainerRef.current.contains(e.target)
+            ) {
+                setSelectedToilet(null);
+                overlayRef.current.setMap(null);
+            }
+        }
+
+        if (selectedToilet) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
 
         return () => {
-        window.kakao.maps.event.removeListener(map, 'center_changed', updateVisibleMarkers);
-        window.kakao.maps.event.removeListener(map, 'zoom_changed', updateVisibleMarkers);
+            document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [searchToggle, markers]);
+    }, [selectedToilet]);
 
     return (
-        <MapWrapper>
+        <Wrapper>
             <MapContainer ref={container} />
-        </MapWrapper>
+        </Wrapper>
     );
 }

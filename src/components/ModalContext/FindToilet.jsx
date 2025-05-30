@@ -5,7 +5,6 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    user-select: none;
 `;
 
 const Title = styled.h2`
@@ -14,10 +13,11 @@ const Title = styled.h2`
 `;
 
 const AddressInput = styled.input`
-    width: 93%;
+    width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
+    box-sizing: border-box;
 `;
 
 const SearchBtn = styled.div`

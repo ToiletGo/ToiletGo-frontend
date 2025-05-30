@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import check from '../../assets/icon/check.svg';
+import bluePing from '../../assets/icon/blue_ping.svg';
 
 const Wrapper = styled.div`
     display: flex;
     position: relative;
     flex-direction: column;
-    height: 700px;
-    user-select: none;
+    height: 100vh;
+    gap: 10px;
 `;
 
 const Input = styled.input`
-    width: 93%;
+    width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    margin: 5px 0 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
 `;
 
 const ShowMapBtn = styled.div`
@@ -28,7 +30,6 @@ const ShowMapBtn = styled.div`
     border: none;
     border-radius: 6px;
     margin-bottom: 10px;
-    user-select: none;
     cursor: pointer;
 `;
 
@@ -47,7 +48,6 @@ const ToggleWrapper = styled.div`
     align-items: center;
     font-size: 14px;
     gap: 5px;
-    user-select: none;
 `;
 
 const Toggle = styled.div`
@@ -76,16 +76,19 @@ const DetailInput = styled.textarea`
 const SendBtn = styled.div`
     display: flex;
     justify-content: center;
+    align-items: center;
     position: absolute;
-    right: 0px;
-    bottom: 10px;
-    width: 50px;
-    padding: 10px;
+    right: 20px;
+    bottom: 20px;
+    width: 60px;
+    height: 40px;
     background-color: #4a95e5;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 `;
 
 const MapOverlay = styled.div`
@@ -119,15 +122,12 @@ const SearchLocation = styled.div`
     z-index: 40;
 `;
 
-const Crosshair = styled.div`
+const Crosshair = styled.img`
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 24px;
-    height: 24px;
-    background-color: blue;
-    background-image: url('/crosshair.png');
-    background-size: cover;
+    width: 30px;
+    height: 40px;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 40;
@@ -142,20 +142,21 @@ const SelectBtn = styled.div`
     border: none;
     border-radius: 6px;
     padding: 10px 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     z-index: 40;
 `;
 
 export default function RegisterToilet() {
-    const [name, setName] = useState('');
+    const [buildingName, setBuildingName] = useState('');
     const [address, setAddress] = useState('');
     const [location, setLocation] = useState({ lat: null, lng: null });
     const [showMap, setShowMap] = useState(false);
+    const [hasDiaperTable, setHasDiaperTable] = useState(false);
+    const [hasHandicapAccess, setHasHandicapAccess] = useState(false);
     const [hasBidet, setHasBidet] = useState(false);
-    const [hasChildSeat, setHasChildSeat] = useState(false);
-    const [hasDisabled, setHasDisabled] = useState(false);
-    const [hasPaper, setHasPaper] = useState(false);
-    const [description, setDescription] = useState('');
+    const [hasTissue, setHasTissue] = useState(false);
+    const [note, setNote] = useState('');
 
     const mapRef = useRef(null);
     const mapInstance = useRef(null);
@@ -197,7 +198,7 @@ export default function RegisterToilet() {
 
     // 등록
     const handleSubmit = () => {
-        if (!name || !address || !location.lat || !location.lng) {
+        if (!buildingName || !address || !location.lat || !location.lng) {
             alert('모든 필수 항목을 입력해 주세요.');
             return;
         }
@@ -210,12 +211,24 @@ export default function RegisterToilet() {
         <Wrapper>
             <h2>화장실 등록</h2>
             <span>화장실 이름</span>
-            <Input label="화장실 이름" value={name} onChange={e => setName(e.target.value)} required />
+            <Input label="화장실 이름" value={buildingName} onChange={e => setBuildingName(e.target.value)} required />
             <span>주소</span>
             <Input label="주소" value={address} onChange={e => setAddress(e.target.value)} required />
             <ShowMapBtn onClick={() => setShowMap(true)}>지도에서 선택</ShowMapBtn>
             <span>존재 유무</span>
             <Row>
+                <ToggleWrapper>
+                    <span>유아용 의자</span>
+                    <Toggle onClick={() => setHasDiaperTable(!hasDiaperTable)}>
+                        {hasDiaperTable && <CheckImg src={check} alt="check" />}
+                    </Toggle>
+                </ToggleWrapper>
+                <ToggleWrapper>
+                    <span>장애인 전용</span>
+                    <Toggle onClick={() => setHasHandicapAccess(!hasHandicapAccess)}>
+                        {hasHandicapAccess && <CheckImg src={check} alt="check" />}
+                    </Toggle>
+                </ToggleWrapper>
                 <ToggleWrapper>
                     <span>비데</span>
                     <Toggle onClick={() => setHasBidet(!hasBidet)}>
@@ -223,29 +236,17 @@ export default function RegisterToilet() {
                     </Toggle>
                 </ToggleWrapper>
                 <ToggleWrapper>
-                    <span>유아용 의자</span>
-                    <Toggle onClick={() => setHasChildSeat(!hasChildSeat)}>
-                        {hasChildSeat && <CheckImg src={check} alt="check" />}
-                    </Toggle>
-                </ToggleWrapper>
-                <ToggleWrapper>
-                    <span>장애인</span>
-                    <Toggle onClick={() => setHasDisabled(!hasDisabled)}>
-                        {hasDisabled && <CheckImg src={check} alt="check" />}
-                    </Toggle>
-                </ToggleWrapper>
-                <ToggleWrapper>
                     <span>휴지</span>
-                    <Toggle onClick={() => setHasPaper(!hasPaper)}>
-                        {hasPaper && <CheckImg src={check} alt="check" />}
+                    <Toggle onClick={() => setHasTissue(!hasTissue)}>
+                        {hasTissue && <CheckImg src={check} alt="check" />}
                     </Toggle>
                 </ToggleWrapper>
             </Row>
             <span>세부 설명</span>
             <DetailInput
                 placeholder="세부 설명 (최대 50자)"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
+                value={note}
+                onChange={e => setNote(e.target.value)}
                 maxLength={50}
             />
             <SendBtn onClick={handleSubmit}>등록</SendBtn>
@@ -260,7 +261,7 @@ export default function RegisterToilet() {
                             placeholder="주소를 입력하세요"
                         />
                     </SearchLocation>
-                    <Crosshair />
+                    <Crosshair src={bluePing} />
                     <SelectBtn onClick={selectLocation}>위치 선택</SelectBtn>
                 </MapContainer>
                 </MapOverlay>
