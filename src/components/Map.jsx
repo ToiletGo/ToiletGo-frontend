@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 
 const MapContainer = styled.div`
     width: 100vw;
-    min-height: 735px;
+    height: 100vh;
 `;
 
 
@@ -23,13 +23,14 @@ const MapContainer = styled.div`
 export default function Map() {
     const mapRef = useRef(null);
     const container = useRef(null);
+    const clustererRef = useRef(null);
     const overlayRef = useRef(null);
     const overlayContainerRef = useRef(null);
     const overlayReactRootRef = useRef(null);
     
     const [center, setCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 지도 중심
     const [mapCenter, setMapCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 🔥 추가: 지도 중심 좌표 상태
-    const [level, setLevel] = useState(5); // 지도 확대율
+    const [level, setLevel] = useState(2); // 지도 확대율
     const [markers, setMarkers] = useState([]); // 화장실 정보 객체 목록
     const [selectedToilet, setSelectedToilet] = useState(null); // 선택된 화장실 세부정보 목록
     const [overlayPosition, setOverlayPosition] = useState(null); // 화장실 세부정보 모달창 위치
@@ -112,7 +113,12 @@ export default function Map() {
 
             mapRef.current = map;
 
-            
+            // 2) MarkerClusterer 생성 (한 번만)
+            clustererRef.current = new window.kakao.maps.MarkerClusterer({
+                map: map,
+                averageCenter: true,
+                minLevel: 5,  // 레벨 10 이하에서는 클러스터 해제
+            });
             
 
             // 중심 좌표, 줌 레벨 추적
@@ -147,26 +153,46 @@ export default function Map() {
     // 중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> 화장실 목록 호출 API 요청
     useEffect(() => {
         const map = mapRef.current;
-        if (!map) return;
+        const clusterer = clustererRef.current;
+        if (!map || !clusterer) return;
 
+        // 줌 레벨이 5 미만: → “새로 API 호출 + 마커 생성”
+        // 줌 레벨이 5 이상: → “이미 로드된 markers 배열을 클러스터만 다시 계산”
+        if (level < 3) {
+        // ──────────────── API 요청 구간 ────────────────
+        const bounds = map.getBounds();
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
         const params = {
-            minLat: center.lat-0.02,
-            minLng: center.lng-0.02,
-            maxLat: center.lat+0.02,
-            maxLng: center.lng+0.000005,
-        }
+            minLat: sw.getLat(),
+            minLng: sw.getLng(),
+            maxLat: ne.getLat(),
+            maxLng: ne.getLng(),
+        };
 
-        // 범위 내 위치한 화장실 목록 요청
-        axios.get('http://15.164.220.91:8080/api/toilets', { params })
-            .then(res => {
-                console.log("API 응답:", res.data);
-                renderMarkers(res.data);
-                
+        axios
+            .get('http://15.164.220.91:8080/api/toilets', { params })
+            .then((res) => {
+            // API로부터 내려온 JSON 배열을 renderMarkers에 넘김
+            renderMarkers(res.data);
             })
-            .catch(err => console.error('화장실 불러오기 실패:', err));
+            .catch((err) => console.error('화장실 불러오기 실패:', err));
 
-        // 테스트용 mock data 사용(API 연결 시 삭제)
-            renderMarkers(toilets);
+        // (개발/테스트용) mock data 강제로 렌더링
+        // renderMarkers(toilets);
+
+        } else {
+        // ──────────────── 레벨 ≥ 5일 때 (클러스터 재계산만) ────────────────
+        // 기존에 state.markers에 담겨 있는 Marker 객체 목록을
+        // 우선 화면에서 모두 지운 뒤, 클러스터러를 클리어하고 다시 묶으면 됨.
+
+        // (1) 화면에서 기존 마커만 제거
+        markers.forEach((m) => m.setMap(null));
+        // (2) 클러스터러 안에 들어 있는 모든 마커 리스트 비우기
+        clusterer.clear();
+        // (3) 다시 클러스터러에 담아서 렌더링 (이미 생성된 Marker 객체 재사용)
+        clusterer.addMarkers(markers);
+        }
     }, [level]);
 
     
@@ -175,9 +201,12 @@ export default function Map() {
     const renderMarkers = (places) => {
         const map = mapRef.current;
         const newMarkers = [];
+        const clusterer = clustererRef.current;
+        if (!map || !clusterer) return;
 
         // 기존 마커 제거
         markers.forEach(marker => marker.setMap(null));
+        clusterer.clear();
 
         places.forEach((place) => { 
             const latitude = Number(place.latitude);
@@ -212,6 +241,9 @@ export default function Map() {
             marker.setMap(map);
             newMarkers.push(marker);
         });
+
+        // 3) 클러스터러에 마커 추가
+        clusterer.addMarkers(newMarkers);
 
         setMarkers(newMarkers);
     };
@@ -264,13 +296,23 @@ export default function Map() {
     return (
         <Wrapper>
             <MapContainer ref={container} />
-            {/* 🔥 예시로 지도 중심 표시 */}
-            <div style={{ position: 'absolute', top: 10, left: 10, background: '#fff', padding: '5px', zIndex: 9999 }}>
-                <div>현재 지도 중심: {mapCenter.lat.toFixed(6)}, {mapCenter.lng.toFixed(6)}</div>
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 10,
+                    left: 10,
+                    background: '#fff',
+                    padding: '5px',
+                    zIndex: -1  ,
+                }}
+            >
+                <div>
+                    현재 지도 중심: {mapCenter.lat.toFixed(6)}, {mapCenter.lng.toFixed(6)}
+                </div>
                 <div>현재 레벨: {level}</div>
                 <div style={{ marginTop: '5px' }}>
-                    <button onClick={zoomIn}>🔍 확대</button>
-                    <button onClick={zoomOut}>🔎 축소</button>
+                <button onClick={zoomIn}>🔍 확대</button>
+                <button onClick={zoomOut}>🔎 축소</button>
                 </div>
             </div>
         </Wrapper>
