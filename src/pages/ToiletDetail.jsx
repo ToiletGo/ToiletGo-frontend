@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import StarRating from '../components/StarRating';
+import wc from '../assets/icon/wc.svg';
 
 const Wrapper = styled.div`
     display: flex;
@@ -15,8 +16,30 @@ const Header = styled.div`
     width: 100%;
     border-bottom: 1px solid #ddd;
     margin-bottom: 30px;
-    padding: 18px;
-    font-size: 18px;
+    padding: 10px;
+`;
+
+const Logo = styled.div`
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 24px;
+    color: #4a95e5;
+`;
+
+const Icon = styled.img`
+    width: 25px;
+    height: 25px;
+    margin-right: 5px;
+`;
+
+const Login = styled.div`
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid #ddd;    
+    border-radius: 8px;
+    font-size: 16px;
 `;
 
 const InfoContainer = styled.div`
@@ -134,13 +157,17 @@ const ToiletDetail = () => {
     ];
 
     const toilet = toilets.filter((toilet) => toilet.toiletId === 1)[0];
-    console.log(toilet);
 
     return (
         <Wrapper>
             <Header>
-                <span>ToiletGo</span>
-                <span>로그인</span>
+                <Logo>
+                    <Icon src={wc} alt="Logo" />
+                    ToiletGo
+                </Logo>
+                <Login>
+                    로그인
+                </Login>
             </Header>
             <InfoContainer>
                 <Title>{toilet.buildingName}</Title>
