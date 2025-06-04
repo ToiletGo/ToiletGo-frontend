@@ -18,6 +18,8 @@ const MapContainer = styled.div`
     min-height: 735px;
 `;
 
+
+
 export default function Map() {
     const mapRef = useRef(null);
     const container = useRef(null);
@@ -26,12 +28,29 @@ export default function Map() {
     const overlayReactRootRef = useRef(null);
     
     const [center, setCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 지도 중심
+    const [mapCenter, setMapCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 🔥 추가: 지도 중심 좌표 상태
     const [level, setLevel] = useState(5); // 지도 확대율
     const [markers, setMarkers] = useState([]); // 화장실 정보 객체 목록
     const [selectedToilet, setSelectedToilet] = useState(null); // 선택된 화장실 세부정보 목록
     const [overlayPosition, setOverlayPosition] = useState(null); // 화장실 세부정보 모달창 위치
 
     const navigate = useNavigate();
+
+    // 지도 확대 함수
+    const zoomIn = () => {
+    if (mapRef.current) {
+        const level = mapRef.current.getLevel();
+        mapRef.current.setLevel(level - 1);
+    }
+    };
+
+    // 지도 축소 함수
+    const zoomOut = () => {
+    if (mapRef.current) {
+        const level = mapRef.current.getLevel();
+        mapRef.current.setLevel(level + 1);
+    }
+    };
 
     // 테스트용 mock data (API 연결 시 삭제)
     const toilets = [
@@ -79,6 +98,7 @@ export default function Map() {
         },
     ];
 
+    
     // 지도 초기화
     useEffect(() => {
         window.kakao.maps.load(() => {
@@ -89,11 +109,17 @@ export default function Map() {
 
             mapRef.current = map;
 
+            
+            
+
             // 중심 좌표, 줌 레벨 추적
             window.kakao.maps.event.addListener(map, 'center_changed', () => {
                 const center = map.getCenter();
+                const lat = center.getLat();
+                const lng = center.getLng();
                 setCenter({ lat: center.getLat(), lng: center.getLng() });
-            });
+                setMapCenter({ lat, lng }); // 🔥 추가!
+            }); 
 
             window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
                 setLevel(map.getLevel());
@@ -112,6 +138,8 @@ export default function Map() {
             });
         });
     }, []);
+
+    
    
     // 중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> 화장실 목록 호출 API 요청
     useEffect(() => {
@@ -126,7 +154,7 @@ export default function Map() {
         }
 
         // 범위 내 위치한 화장실 목록 요청
-        axios.get('http://localhost:8080/api/toilets', { params })
+        axios.get('http://15.164.220.91:8080/api/toilets', { params })
             .then(res => {
                 console.log("API 응답:", res.data);
                 renderMarkers(res.data);
@@ -137,6 +165,8 @@ export default function Map() {
         // 테스트용 mock data 사용(API 연결 시 삭제)
             renderMarkers(toilets);
     }, [level]);
+
+    
 
     // 마커 렌더링 함수
     const renderMarkers = (places) => {
@@ -231,6 +261,18 @@ export default function Map() {
     return (
         <Wrapper>
             <MapContainer ref={container} />
+            {/* 🔥 예시로 지도 중심 표시 */}
+            <div style={{ position: 'absolute', top: 10, left: 10, background: '#fff', padding: '5px', zIndex: 9999 }}>
+                <div>현재 지도 중심: {mapCenter.lat.toFixed(6)}, {mapCenter.lng.toFixed(6)}</div>
+                <div>현재 레벨: {level}</div>
+                <div style={{ marginTop: '5px' }}>
+                    <button onClick={zoomIn}>🔍 확대</button>
+                    <button onClick={zoomOut}>🔎 축소</button>
+                </div>
+            </div>
         </Wrapper>
     );
+
+    
+    
 }
