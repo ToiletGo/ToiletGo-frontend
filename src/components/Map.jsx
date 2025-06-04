@@ -36,6 +36,8 @@ export default function Map() {
 
     const navigate = useNavigate();
 
+    
+
     // 지도 확대 함수
     const zoomIn = () => {
     if (mapRef.current) {
@@ -51,6 +53,7 @@ export default function Map() {
         mapRef.current.setLevel(level + 1);
     }
     };
+
 
     // 테스트용 mock data (API 연결 시 삭제)
     const toilets = [
