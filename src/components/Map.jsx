@@ -118,28 +118,25 @@ export default function Map() {
         const map = mapRef.current;
         if (!map) return;
 
-        const bounds = map.getBounds();
-        const sw = bounds.getSouthWest(); // 남서
-        const ne = bounds.getNorthEast(); // 북동
-
         const params = {
-            minLat: sw.getLat(),
-            minLng: sw.getLng(),
-            maxLat: ne.getLat(),
-            maxLng: ne.getLng(),
+            minLat: center.lat-0.02,
+            minLng: center.lng-0.02,
+            maxLat: center.lat+0.02,
+            maxLng: center.lng+0.000005,
         }
-/*
+
         // 범위 내 위치한 화장실 목록 요청
-        axios.get('/api/toilets', { params })
+        axios.get('http://localhost:8080/api/toilets', { params })
             .then(res => {
-                console.log(res.data);
+                console.log("API 응답:", res.data);
                 renderMarkers(res.data);
+                
             })
             .catch(err => console.error('화장실 불러오기 실패:', err));
-*/
+
         // 테스트용 mock data 사용(API 연결 시 삭제)
-        renderMarkers(toilets);
-    }, [center, level]);
+            renderMarkers(toilets);
+    }, [level]);
 
     // 마커 렌더링 함수
     const renderMarkers = (places) => {
@@ -149,10 +146,13 @@ export default function Map() {
         // 기존 마커 제거
         markers.forEach(marker => marker.setMap(null));
 
-        places.forEach((place) => {
-            const latitude = place.latitude;
-            const longitude = place.longitude;
-            const rating = place.rating;
+        places.forEach((place) => { 
+            const latitude = Number(place.latitude);
+            const longitude = Number(place.longitude);
+            const rating = Number(place.rating);
+
+            console.log(place);
+            console.log(latitude, longitude, rating);
             
             // 핑 이미지 선택
             let imageSrc = BluePing; // 좋음(파란 핑)
@@ -162,7 +162,7 @@ export default function Map() {
             const imageSize = new window.kakao.maps.Size(30, 40); // 마커 크기 설정
             const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize); // 마커 이미지 및 크기 설정
 
-            const position = new window.kakao.maps.LatLng(latitude, longitude); // 마커 위치 설정
+            const position = new window.kakao.maps.LatLng(longitude, latitude); // 마커 위치 설정
 
             // 마커 생성
             const marker = new window.kakao.maps.Marker({
