@@ -25,11 +25,11 @@ export default function Map() {
     const overlayContainerRef = useRef(null);
     const overlayReactRootRef = useRef(null);
     
-    const [center, setCenter] = useState({ lat: 37.537375, lng: 127.082000 });
-    const [level, setLevel] = useState(5);
-    const [markers, setMarkers] = useState([]);
-    const [selectedToilet, setSelectedToilet] = useState(null);
-    const [overlayPosition, setOverlayPosition] = useState(null);
+    const [center, setCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 지도 중심
+    const [level, setLevel] = useState(5); // 지도 확대율
+    const [markers, setMarkers] = useState([]); // 화장실 정보 객체 목록
+    const [selectedToilet, setSelectedToilet] = useState(null); // 선택된 화장실 세부정보 목록
+    const [overlayPosition, setOverlayPosition] = useState(null); // 화장실 세부정보 모달창 위치
 
     const navigate = useNavigate();
 
@@ -38,13 +38,13 @@ export default function Map() {
         {
             toiletId: 1,
             latitude: 37.537375,
-            longtitude: 127.082,
+            longitude: 127.082,
             buildingName: '중곡 공중화장실',
             rating: 4.2,
             reviewCount: 10,
             toiletStatus: "여 1, 남 1",
             hasDiaperTable: false,
-            hasHandicapAcces: true,
+            hasHandicapAccess: true,
             hasBidet: true,
             hasTissue: true,
             note: '중곡역 출구 앞에 위치한 화장실입니다.',
@@ -52,13 +52,13 @@ export default function Map() {
         {
             toiletId: 2,
             latitude: 37.539,
-            longtitude: 127.085,
+            longitude: 127.085,
             buildingName: '자양 화장실',
             rating: 2.3,
             reviewCount: 20,
             toiletStatus: "여 3, 남 3",
             hasDiaperTable: true,
-            hasHandicapAcces: false,
+            hasHandicapAccess: false,
             hasBidet: false,
             hasTissue: false,
             note: '자양동 공원 내 위치',
@@ -66,13 +66,13 @@ export default function Map() {
         {
             toiletId: 3,
             latitude: 37.535,
-            longtitude: 127.078,
+            longitude: 127.078,
             buildingName: '능동 화장실',
             rating: 1.4,
             reviewCount: 15,
             toiletStatus: "여 4, 남 4",
             hasDiaperTable: true,
-            hasHandicapAcces: true,
+            hasHandicapAccess: true,
             hasBidet: true,
             hasTissue: true,
             note: '능동로 도로변에 위치한 넓은 화장실',
@@ -113,7 +113,7 @@ export default function Map() {
         });
     }, []);
    
-    // 중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> API 요청
+    // 중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> 화장실 목록 호출 API 요청
     useEffect(() => {
         const map = mapRef.current;
         if (!map) return;
@@ -128,17 +128,17 @@ export default function Map() {
             maxLat: ne.getLat(),
             maxLng: ne.getLng(),
         }
-
-        // 백엔드에 범위 내 장소 요청
+/*
+        // 범위 내 위치한 화장실 목록 요청
         axios.get('/api/toilets', { params })
             .then(res => {
                 console.log(res.data);
                 renderMarkers(res.data);
             })
             .catch(err => console.error('화장실 불러오기 실패:', err));
-
+*/
         // 테스트용 mock data 사용(API 연결 시 삭제)
-//        renderMarkers(toilets);
+        renderMarkers(toilets);
     }, [center, level]);
 
     // 마커 렌더링 함수
@@ -150,17 +150,19 @@ export default function Map() {
         markers.forEach(marker => marker.setMap(null));
 
         places.forEach((place) => {
-            const { latitude, longtitude, buildingName, rating, reviewCount, toiletStatus, hasDiaperTable, hasHandicapAccess, hasBidet, hasTissue, note } = place;
-
+            const latitude = place.latitude;
+            const longitude = place.longitude;
+            const rating = place.rating;
+            
             // 핑 이미지 선택
-            let imageSrc = BluePing;
-            if (rating < 2.0) imageSrc = RedPing;
-            else if (rating < 3.5) imageSrc = YellowPing;
+            let imageSrc = BluePing; // 좋음(파란 핑)
+            if (rating < 2.0) imageSrc = RedPing; // 나쁨(빨간 핑)
+            else if (rating < 3.5) imageSrc = YellowPing; // 보통(노란 핑)
 
-            const imageSize = new window.kakao.maps.Size(30, 40);
-            const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
+            const imageSize = new window.kakao.maps.Size(30, 40); // 마커 크기 설정
+            const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize); // 마커 이미지 및 크기 설정
 
-            const position = new window.kakao.maps.LatLng(latitude, longtitude);
+            const position = new window.kakao.maps.LatLng(latitude, longitude); // 마커 위치 설정
 
             // 마커 생성
             const marker = new window.kakao.maps.Marker({
@@ -168,8 +170,9 @@ export default function Map() {
                 image: markerImage,
             });
 
+            // 마커 클릭 이벤트
             marker.addListener('click', () => {
-                setSelectedToilet({ buildingName, rating, reviewCount, toiletStatus, hasDiaperTable, hasHandicapAccess, hasBidet, hasTissue, note });
+                setSelectedToilet(place);
                 setOverlayPosition(position);
             });
 
@@ -196,9 +199,7 @@ export default function Map() {
                     setSelectedToilet(null);
                     overlayRef.current.setMap(null);
                 }}
-                navigate={() => {
-                    navigate('/');
-                }}
+                navigate={navigate}
             />
         );
 

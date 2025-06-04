@@ -46,6 +46,7 @@ const ToggleWrapper = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 70px;
     font-size: 14px;
     gap: 5px;
 `;
@@ -213,7 +214,7 @@ export default function RegisterToilet() {
             <span>화장실 이름</span>
             <Input label="화장실 이름" value={buildingName} onChange={e => setBuildingName(e.target.value)} required />
             <span>주소</span>
-            <Input label="주소" value={address} onChange={e => setAddress(e.target.value)} required />
+            <Input label="주소" value={address} placeholder='지도에서 선택해주세요!' onChange={e => setAddress(e.target.value)} required disabled />
             <ShowMapBtn onClick={() => setShowMap(true)}>지도에서 선택</ShowMapBtn>
             <span>존재 유무</span>
             <Row>
