@@ -30,6 +30,10 @@ const Title = styled.div`
     gap: 5px;
     font-size: 20px;
     font-weight: 500;
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
 `;
 
 const ShowDetailBtn = styled.img`
@@ -94,7 +98,17 @@ const CheckImg = styled.img`
 `;
 
 export default function InfoBox({ data, onClose, navigate }) {
-    const { buildingName, rating, reviewCount, toiletStatus, hasDiaperTable, hasHandicapAccess, hasBidet, hasTissue, note } = data;
+    const { 
+        toiletId, 
+        buildingName, 
+        rating, 
+        reviewCount, 
+        toiletStatus, 
+        hasDiaperTable, 
+        hasHandicapAccess, 
+        hasBidet, 
+        hasTissue, 
+        note } = data;
 
     return (
         <Wrapper
@@ -103,7 +117,7 @@ export default function InfoBox({ data, onClose, navigate }) {
             onClick={(e) => e.stopPropagation()}
         >
             <Header>
-                <Title onClick={navigate}>
+                <Title onClick={() => navigate(`/toilet/${toiletId}`)}>
                     {buildingName}
                     <ShowDetailBtn src={rightBtn} alt='rightBtn' />
                 </Title>
@@ -114,6 +128,9 @@ export default function InfoBox({ data, onClose, navigate }) {
                 <StarRating rating={rating} size="16px" />
                 <Count>({reviewCount}건)</Count>
             </InfoRow>
+            <>
+                {toiletStatus}
+            </>
             <CheckRow>
                 <CheckBox>
                     <span>유아용 의자</span>

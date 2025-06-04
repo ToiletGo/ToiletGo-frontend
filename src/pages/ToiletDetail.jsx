@@ -87,16 +87,54 @@ const CheckImg = styled.img`
 `;
 
 const ToiletDetail = () => {
-    //const { buildingName, rating, reviewCount, toiletStatus, hasDiaperTable, hasHandicapAccess, hasBidet, hasTissue, note } = data;
-    const buildingName = "건국대학교병원 화장실";
-    const rating = 2.5;
-    const reviewCount = 20;
-    const toiletStatus = "여 1, 남 1";
-    const hasDiaperTable = false;
-    const hasHandicapAccess = true;
-    const hasBidet = true;
-    const hastissue = false;
-    const note = "화장실 설명입니다. 아무거나 적었어요.";
+    // 테스트용 mock data (API 연결 시 삭제)
+    const toilets = [
+        {
+            toiletId: 1,
+            latitude: 37.537375,
+            longitude: 127.082,
+            buildingName: '중곡 공중화장실',
+            rating: 4.2,
+            reviewCount: 10,
+            toiletStatus: "여 1, 남 1",
+            hasDiaperTable: false,
+            hasHandicapAccess: true,
+            hasBidet: true,
+            hasTissue: true,
+            note: '중곡역 출구 앞에 위치한 화장실입니다.',
+        },
+        {
+            toiletId: 2,
+            latitude: 37.539,
+            longitude: 127.085,
+            buildingName: '자양 화장실',
+            rating: 2.3,
+            reviewCount: 20,
+            toiletStatus: "여 3, 남 3",
+            hasDiaperTable: true,
+            hasHandicapAccess: false,
+            hasBidet: false,
+            hasTissue: false,
+            note: '자양동 공원 내 위치',
+        },
+        {
+            toiletId: 3,
+            latitude: 37.535,
+            longitude: 127.078,
+            buildingName: '능동 화장실',
+            rating: 1.4,
+            reviewCount: 15,
+            toiletStatus: "여 4, 남 4",
+            hasDiaperTable: true,
+            hasHandicapAccess: true,
+            hasBidet: true,
+            hasTissue: true,
+            note: '능동로 도로변에 위치한 넓은 화장실',
+        },
+    ];
+
+    const toilet = toilets.filter((toilet) => toilet.toiletId === 1)[0];
+    console.log(toilet);
 
     return (
         <Wrapper>
@@ -105,11 +143,11 @@ const ToiletDetail = () => {
                 <span>로그인</span>
             </Header>
             <InfoContainer>
-                <Title>{buildingName}</Title>
+                <Title>{toilet.buildingName}</Title>
                 <InfoRow>
-                    <Rating>{rating}</Rating>
-                    <StarRating rating={rating} size="16px" />
-                    <Count>({reviewCount}건)</Count>
+                    <Rating>{toilet.rating}</Rating>
+                    <StarRating rating={toilet.rating} size="16px" />
+                    <Count>({toilet.reviewCount}건)</Count>
                     <div></div>
                 </InfoRow>
             </InfoContainer>
