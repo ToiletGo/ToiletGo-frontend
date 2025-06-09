@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useEffect, useRef, useState } from 'react';
+import axios from '../../api/axios.js';
 import check from '../../assets/icon/check.svg';
 import bluePing from '../../assets/icon/blue_ping.svg';
 

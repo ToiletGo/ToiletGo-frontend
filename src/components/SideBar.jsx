@@ -4,12 +4,11 @@ import MenuModal from './MenuModal';
 import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.div`
-    width: 10vw;
+    position: relative;
     height: 100vh;
     z-index: 20;
     background-color: white;
     box-shadow: 4px 0px 5px -2px rgba(0,0,0,0.16);
-    position: relative;
 `;
 
 const Outer = styled.div`

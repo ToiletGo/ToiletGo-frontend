@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import Header from '../components/Header';
 import Map from '../components/Map';
 import SideBar from '../components/SideBar';
-import Indicator from '../components/Indicator';
 
 const Wrapper = styled.div`
     display: flex;
@@ -14,11 +13,11 @@ const Wrapper = styled.div`
 const Outer = styled.div`
     display: flex;
     width: 100%;
-    height: 100vh;
 `;
 
 const Inner = styled.div`
-    display: relative;
+    position: relative;
+    width: 100%;
 `;
 
 const Home = () => {
@@ -27,9 +26,7 @@ const Home = () => {
         <Outer>
             <SideBar />
             <Inner>
-                <Header />
                 <Map />
-                <Indicator />
             </Inner>
         </Outer>
     </Wrapper>

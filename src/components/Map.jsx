@@ -1,26 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import InfoBox from '../components/InfoBox.jsx';
+import { useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
+import styled from 'styled-components';
 import axios from '../api/axios';
+import Header from '../components/Header.jsx';
+import InfoBox from '../components/InfoBox.jsx';
 import RedPing from '../assets/icon/red_ping.svg';
 import YellowPing from '../assets/icon/yellow_ping.svg';
-import BluePing from '../assets/icon/blue_ping.svg';
-import { useNavigate } from 'react-router-dom';
+import BluePing from '../assets/icon/blue_ping.svg';    
+import Indicator from '../components/Indicator.jsx';
 
 const Wrapper = styled.div`
-    width: 100vw;
-    height: 100vh;
+    position: relative;
+    width: 100%;
+    height: 100%;
 `;
 
 const MapContainer = styled.div`
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 `;
 
-
+const Debug = styled.div`
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: white;
+    padding: 5px;
+    z-index: -10;
+`;
 
 export default function Map() {
+    const KAKAO_MAP_API_KEY = import.meta.env.VITE_KAKAO_MAP_API_KEY;
+
     const mapRef = useRef(null);
     const container = useRef(null);
     const clustererRef = useRef(null);
@@ -29,15 +41,13 @@ export default function Map() {
     const overlayReactRootRef = useRef(null);
     
     const [center, setCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 지도 중심
-    const [mapCenter, setMapCenter] = useState({ lat: 37.537375, lng: 127.082000 }); // 🔥 추가: 지도 중심 좌표 상태
     const [level, setLevel] = useState(2); // 지도 확대율
     const [markers, setMarkers] = useState([]); // 화장실 정보 객체 목록
     const [selectedToilet, setSelectedToilet] = useState(null); // 선택된 화장실 세부정보 목록
     const [overlayPosition, setOverlayPosition] = useState(null); // 화장실 세부정보 모달창 위치
+    const [filters, setFilters] = useState({}); // 필터링 정보
 
     const navigate = useNavigate();
-
-    
 
     // 지도 확대 함수
     const zoomIn = () => {
@@ -55,9 +65,8 @@ export default function Map() {
     }
     };
 
-
     // 테스트용 mock data (API 연결 시 삭제)
-    const toilets = [
+    /*const toilets = [
         {
             toiletId: 1,
             latitude: 37.537375,
@@ -100,103 +109,115 @@ export default function Map() {
             hasTissue: true,
             note: '능동로 도로변에 위치한 넓은 화장실',
         },
-    ];
-
+    ];*/
     
     // 지도 초기화
     useEffect(() => {
-        window.kakao.maps.load(() => {
-            const map = new window.kakao.maps.Map(container.current, {
-                center: new window.kakao.maps.LatLng(center.lat, center.lng),
-                level: level,
-            });
+        const script = document.createElement('script');
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_API_KEY}&autoload=false&libraries=services,clusterer`;
+        script.async = true;
 
-            mapRef.current = map;
+        script.onload = () => {
+            window.kakao.maps.load(() => {
+                const map = new window.kakao.maps.Map(container.current, {
+                    center: new window.kakao.maps.LatLng(center.lat, center.lng),
+                    level: level,
+                });
 
-            // 2) MarkerClusterer 생성 (한 번만)
-            clustererRef.current = new window.kakao.maps.MarkerClusterer({
-                map: map,
-                averageCenter: true,
-                minLevel: 5,  // 레벨 10 이하에서는 클러스터 해제
-            });
-            
+                mapRef.current = map;
 
-            // 중심 좌표, 줌 레벨 추적
-            window.kakao.maps.event.addListener(map, 'center_changed', () => {
-                const center = map.getCenter();
-                const lat = center.getLat();
-                const lng = center.getLng();
-                setCenter({ lat: center.getLat(), lng: center.getLng() });
-                setMapCenter({ lat, lng }); // 🔥 추가!
-            }); 
+                // 2) MarkerClusterer 생성 (한 번만)
+                clustererRef.current = new window.kakao.maps.MarkerClusterer({
+                    map: map,
+                    averageCenter: true,
+                    minLevel: 5,  // 레벨 5 이하에서는 클러스터 해제
+                });
 
-            window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
-                setLevel(map.getLevel());
-            });
+                // 중심 좌표, 줌 레벨 추적
+                window.kakao.maps.event.addListener(map, 'center_changed', () => {
+                    const center = map.getCenter();
+                    const lat = center.getLat();
+                    const lng = center.getLng();
+                    setCenter({ lat, lng });
+                }); 
 
-            // CustomOverlay DOM 컨테이너 초기화
-            overlayContainerRef.current = document.createElement('div');
+                window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
+                    setLevel(map.getLevel());
+                });
 
-            // CustomOverlay 상에서 지도 클릭 이벤트 발생 방지
-            overlayContainerRef.current.style.pointerEvents = 'none';
+                // CustomOverlay DOM 컨테이너 초기화
+                overlayContainerRef.current = document.createElement('div');
 
-            overlayRef.current = new window.kakao.maps.CustomOverlay({
-                content: overlayContainerRef.current,
-                xAnchor: 0.5,
-                yAnchor: 1.2,
-            });
-        });
+                // CustomOverlay 상에서 지도 클릭 이벤트 발생 방지
+                overlayContainerRef.current.style.pointerEvents = 'none';
+
+                overlayRef.current = new window.kakao.maps.CustomOverlay({
+                    content: overlayContainerRef.current,
+                    xAnchor: 0.5,
+                    yAnchor: 1.2,
+                });
+        })};
+
+        document.head.appendChild(script);
     }, []);
 
-    
+    // 최초 한번 api 무조건 호출
+    useEffect(() => {
+        axios
+            .get('http://15.164.220.91:8080/api/toilets')
+            .then((res) => {
+                console.log(res.data)
+                renderMarkers(res.data);
+            })
+            .catch((err) => console.error('화장실 불러오기 실패:', err));
+    }, []);
    
-    // 중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> 화장실 목록 호출 API 요청
+    // (변경 전)중심 좌표 또는 확대 레벨 변경 시 -> 지도 범위 계산 -> 화장실 목록 호출 API 요청
+    // (변경 후)확대 레벨 변경 시 -> 클러스터 적용 레벨에 한하여 마커 및 클러스터 리렌더링
+    // (추가)필터 선택항목 변경 시 -> 조건에 맞는 화장실만 필터링 -> 마커 리렌더링
+    // 1. 레벨 변경 시 클러스터만 재계산
+    useEffect(() => {
+        // 줌 레벨이 3 이상: → 이미 로드된 markers 배열을 클러스터만 다시 계산
+        if (level >= 3) {
+            const clusterer = clustererRef.current;
+            if (!clusterer) return;
+
+            // 기존에 state.markers에 담겨 있는 Marker 객체 목록을
+            // 우선 화면에서 모두 지운 뒤, 클러스터러를 클리어하고 다시 묶으면 됨.
+
+            // (1) 화면에서 기존 마커만 제거
+            markers.forEach((m) => m.setMap(null));
+            // (2) 클러스터러 안에 들어 있는 모든 마커 리스트 비우기
+            clusterer.clear();
+            // (3) 다시 클러스터러에 담아서 렌더링 (이미 생성된 Marker 객체 재사용)
+            clusterer.addMarkers(markers);
+        }
+    }, [level]);
+
+    // 문제 상황: 필터가 변경될 때마다, 리렌더링에 긴 지연 시간 발생(전체 화장실 목록 받아옴 + 필터링 진행)
+    // 예상 해결책: 기존에 계획한대로, 사용자 화면에 표시될 범위의 화장실 목록만 받아오도록 api 수정
+    // 2. 필터 변경 시 무조건 API 호출
     useEffect(() => {
         const map = mapRef.current;
         const clusterer = clustererRef.current;
         if (!map || !clusterer) return;
 
-        // 줌 레벨이 5 미만: → “새로 API 호출 + 마커 생성”
-        // 줌 레벨이 5 이상: → “이미 로드된 markers 배열을 클러스터만 다시 계산”
-        if (level < 3) {
-        // ──────────────── API 요청 구간 ────────────────
-        const bounds = map.getBounds();
-        const sw = bounds.getSouthWest();
-        const ne = bounds.getNorthEast();
-        const params = {
-            minLat: sw.getLat(),
-            minLng: sw.getLng(),
-            maxLat: ne.getLat(),
-            maxLng: ne.getLng(),
-        };
-
         axios
-            .get('http://15.164.220.91:8080/api/toilets', { params })
+            .get('http://15.164.220.91:8080/api/toilets')
             .then((res) => {
-            // API로부터 내려온 JSON 배열을 renderMarkers에 넘김
-            renderMarkers(res.data);
+                const filtered = res.data.filter((toilet) => {
+                    if (filters.hasDiaperTable && !toilet.hasDiaperTable) return false;
+                    if (filters.hasHandicapAccess && !toilet.hasHandicapAccess) return false;
+                    if (filters.hasBidet && !toilet.hasBidet) return false;
+                    if (filters.hasTissue && !toilet.hasTissue) return false;
+                    return true;
+                });
+
+                renderMarkers(filtered);
             })
             .catch((err) => console.error('화장실 불러오기 실패:', err));
-
-        // (개발/테스트용) mock data 강제로 렌더링
-        // renderMarkers(toilets);
-
-        } else {
-        // ──────────────── 레벨 ≥ 5일 때 (클러스터 재계산만) ────────────────
-        // 기존에 state.markers에 담겨 있는 Marker 객체 목록을
-        // 우선 화면에서 모두 지운 뒤, 클러스터러를 클리어하고 다시 묶으면 됨.
-
-        // (1) 화면에서 기존 마커만 제거
-        markers.forEach((m) => m.setMap(null));
-        // (2) 클러스터러 안에 들어 있는 모든 마커 리스트 비우기
-        clusterer.clear();
-        // (3) 다시 클러스터러에 담아서 렌더링 (이미 생성된 Marker 객체 재사용)
-        clusterer.addMarkers(markers);
-        }
-    }, [level]);
-
+    }, [filters]);
     
-
     // 마커 렌더링 함수
     const renderMarkers = (places) => {
         const map = mapRef.current;
@@ -208,18 +229,25 @@ export default function Map() {
         markers.forEach(marker => marker.setMap(null));
         clusterer.clear();
 
-        places.forEach((place) => { 
+        // 필터링 적용
+        const filteredPlaces = places.filter(place => {
+            return (
+                (!filters.hasDiaperTable || place.hasDiaperTable) &&
+                (!filters.hasHandicapAccess || place.hasHandicapAccess) &&
+                (!filters.hasBidet || place.hasBidet) &&
+                (!filters.hasTissue || place.hasTissue)
+            );
+        });
+
+        filteredPlaces.forEach((place) => { 
             const latitude = Number(place.latitude);
             const longitude = Number(place.longitude);
             const rating = Number(place.rating);
-
-            console.log(place);
-            console.log(latitude, longitude, rating);
             
             // 핑 이미지 선택
-            let imageSrc = BluePing; // 좋음(파란 핑)
-            if (rating < 2.0) imageSrc = RedPing; // 나쁨(빨간 핑)
-            else if (rating < 3.5) imageSrc = YellowPing; // 보통(노란 핑)
+            let imageSrc = RedPing; // 나쁨(빨간 핑)
+            if (rating >= 2.0) imageSrc = YellowPing; // 보통(노란 핑)
+            else if (rating >= 3.5 || rating == 0) imageSrc = BluePing; // 좋음 또는 평 없음(파란 핑)
 
             const imageSize = new window.kakao.maps.Size(30, 40); // 마커 크기 설정
             const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize); // 마커 이미지 및 크기 설정
@@ -293,28 +321,48 @@ export default function Map() {
         };
     }, [selectedToilet]);
 
+    // 현위치 버튼 클릭
+    const handleLocateMe = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const newCenter = new window.kakao.maps.LatLng(lat, lng);
+
+                    mapRef.current.setCenter(newCenter); // 중심 이동
+                    mapRef.current.setLevel(5) // 확대율 변경
+
+                    setCenter({ lat, lng });
+                    setLevel(5);
+                },
+                (error) => {
+                    alert("위치 정보를 가져올 수 없습니다.");
+                    console.error(error);
+                }
+            );
+        }
+    };
+
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters); // Header에서 전달된 필터 반영
+    };
+
     return (
         <Wrapper>
+            <Header onFilterChange={handleFilterChange} onLocateMe={handleLocateMe} />
+            <Indicator />
             <MapContainer ref={container} />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 10,
-                    left: 10,
-                    background: '#fff',
-                    padding: '5px',
-                    zIndex: -1  ,
-                }}
-            >
+            <Debug>
                 <div>
-                    현재 지도 중심: {mapCenter.lat.toFixed(6)}, {mapCenter.lng.toFixed(6)}
+                    현재 지도 중심: {center.lat.toFixed(6)}, {center.lng.toFixed(6)}
                 </div>
                 <div>현재 레벨: {level}</div>
                 <div style={{ marginTop: '5px' }}>
-                <button onClick={zoomIn}>🔍 확대</button>
-                <button onClick={zoomOut}>🔎 축소</button>
+                    <button onClick={zoomIn}>🔍 확대</button>
+                    <button onClick={zoomOut}>🔎 축소</button>
                 </div>
-            </div>
+            </Debug>
         </Wrapper>
     );
 

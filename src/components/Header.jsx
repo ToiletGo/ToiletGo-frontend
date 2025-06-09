@@ -1,5 +1,7 @@
 import styled from "styled-components";
-import SearchBar from './SearchBar';
+import { useState } from "react";
+import SearchBar from './SearchBar.jsx';
+import check from '../assets/icon/check.svg';
 
 const Wrapper = styled.div`
     display: flex;
@@ -22,51 +24,132 @@ const RightSide = styled.div`
 `;
 
 const Filter = styled.div`
-    width: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 70px;
+    height: 40px;
     margin-left: 20px;
-    padding: 10px;
     border-radius: 10px;
     z-index: 10;
     font-size: 16px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
-    background-color: white;
-    color: #1779e2;
+    background-color: ${({ selected }) => (selected ? '#4a95e5' : 'white')};
+    color: ${({ selected }) => (selected ? 'white' : '#4a95e5')};
     cursor: pointer;
-    :hover {
-        background-color: #0f5bb5;
-    }
+`;
+
+const Dropdown = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 45px;
+    left: 409px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    gap: 5px;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const CheckRow = styled.div`
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    gap: 5px;
+`;
+
+const Toggle = styled.div`
+    width: 20px;
+    height: 20px;
+    border-radius: 50px;
+    background-color: #d9d9d9;
+    cursor: pointer;
+`;
+
+const CheckImg = styled.img`
+    width: 20px;
+    height: 20px;
 `;
 
 const MyPosition = styled.div`
-    width: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 70px;
+    height: 40px;
     background-color: white;
-    color: #1779e2;
-    padding: 10px;
+    color: #4a95e5;
     border-radius: 10px;
     z-index: 10;
     font-size: 16px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 1px 2px rgba(0,0,0,0.23);
     cursor: pointer;
-    :hover {
-        background-color: #0f5bb5;
-    }
 `;
 
-const Header = () => {
+const Header = ({ onFilterChange, onLocateMe }) => {
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selected, setSelected] = useState(false);
+    const [filters, setFilters] = useState({
+        hasDiaperTable: false,
+        hasHandicapAccess: false,
+        hasBidet: false,
+        hasTissue: false
+    });
+
+    const toggleFilter = () => {
+        setSelected(prev => !prev)
+        setShowDropdown(prev => !prev);
+    };
+
+    const handleCheckChange = (name) => {
+        const updatedFilters = {
+            ...filters,
+            [name]: !filters[name]
+        };
+
+        setFilters(updatedFilters);
+        onFilterChange(updatedFilters); // 상위 컴포넌트로 전달
+    };
+
     return (
         <Wrapper>
             <LeftSide>
                 <SearchBar />
-                <Filter>필터</Filter>
+                <Filter selected={selected} onClick={toggleFilter}>필터</Filter>
+                {showDropdown && (
+                    <Dropdown>
+                        <CheckRow>
+                            <Toggle onClick={() => handleCheckChange('hasDiaperTable')}>
+                                {filters.hasDiaperTable && <CheckImg src={check} alt="check" />}
+                            </Toggle>
+                            유아용 의자
+                        </CheckRow>
+                        <CheckRow>
+                            <Toggle onClick={() => handleCheckChange('hasHandicapAccess')}>
+                                {filters.hasHandicapAccess && <CheckImg src={check} alt="check" />}
+                            </Toggle>
+                            장애인 전용
+                        </CheckRow>
+                        <CheckRow>
+                            <Toggle onClick={() => handleCheckChange('hasBidet')}>
+                                {filters.hasBidet && <CheckImg src={check} alt="check" />}
+                            </Toggle>
+                            비데
+                        </CheckRow>
+                        <CheckRow>
+                            <Toggle onClick={() => handleCheckChange('hasTissue')}>
+                                {filters.hasTissue && <CheckImg src={check} alt="check" />}
+                            </Toggle>
+                            휴지
+                        </CheckRow>
+                    </Dropdown>
+                )}
             </LeftSide>
             <RightSide>
-                <MyPosition>현위치</MyPosition>
+                <MyPosition onClick={onLocateMe}>현위치</MyPosition>
             </RightSide>
         </Wrapper>
     )
