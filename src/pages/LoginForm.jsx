@@ -171,8 +171,10 @@ const LoginForm = () => {
                 // 저장 위치 결정
                 if (stayLoggedIn) {
                     localStorage.setItem('token', token);
+                    localStorage.setItem('userId', userId);
                 } else {
                     sessionStorage.setItem('token', token);
+                    sessionStorage.setItem('userId', userId);
                 }
 
                 // 로그인 상태 업데이트 이벤트 발생

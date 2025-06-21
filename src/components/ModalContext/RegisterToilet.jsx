@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import axios from '../../api/axios.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import check from '../../assets/icon/check.svg';
 import bluePing from '../../assets/icon/blue_ping.svg';
 
@@ -150,6 +151,8 @@ const SelectBtn = styled.div`
 `;
 
 export default function RegisterToilet() {
+    const { userId } = useAuth();
+
     const [buildingName, setBuildingName] = useState('');
     const [address, setAddress] = useState('');
     const [location, setLocation] = useState({ lat: null, lng: null });
@@ -177,8 +180,6 @@ export default function RegisterToilet() {
         }
     }, [showMap]);
 
-    // 주소 입력 시 카카오맵 API로 주소 검색
-
     // 지도에서 선택 모달에서 위치 선택
     const selectLocation = () => {
         if (!mapInstance.current) return;
@@ -198,7 +199,7 @@ export default function RegisterToilet() {
         });
     };
 
-    // 등록
+    // 화장실 등록
     const handleSubmit = () => {
         if (!buildingName || !address || !location.lat || !location.lng) {
             alert('모든 필수 항목을 입력해 주세요.');
@@ -207,19 +208,26 @@ export default function RegisterToilet() {
 
         // 등록 api 호출
         axios
-            .post(`/api/toilet`, {
-                userId: 1, // 임시로 1번 유저로 설정, 실제로는 로그인한 유저의 ID를 사용해야 함
-                buildingName: buildingName,
+            .post(`/api/toilet`, 
+            {
+                userId: userId,
                 latitude: location.lat,
                 longitude: location.lng,
+                buildingName: buildingName,
+                note: note,
+                rating: 0.0,
+                reviewCount: 0,
                 hasDiaperTable: hasDiaperTable,
                 hasHandicapAccess: hasHandicapAccess,
                 hasBidet: hasBidet,
                 hasTissue: hasTissue,
-                note: note,
             })
-            .then(() => {
+            .then((res) => {
                 alert('등록되었습니다!');
+                console.log(res.data);
+
+                // 등록 후 페이지 새로고침(SPA 방식에 위배되기에 추후 수정 필요)
+                window.location.reload();
             })
             .catch((err) => console.error('화장실 등록 실패:', err));
     };
@@ -270,17 +278,17 @@ export default function RegisterToilet() {
 
             {showMap && (
                 <MapOverlay>
-                <MapContainer ref={mapRef}>
-                    <SearchLocation>
-                        <span>위치 검색</span>
-                        <Input
-                            type="text"
-                            placeholder="주소를 입력하세요"
-                        />
-                    </SearchLocation>
-                    <Crosshair src={bluePing} />
-                    <SelectBtn onClick={selectLocation}>위치 선택</SelectBtn>
-                </MapContainer>
+                    <MapContainer ref={mapRef}>
+                        <SearchLocation>
+                            <span>위치 검색</span>
+                            <Input
+                                type="text"
+                                placeholder="주소를 입력하세요"
+                            />
+                        </SearchLocation>
+                        <Crosshair src={bluePing} />
+                        <SelectBtn onClick={selectLocation}>위치 선택</SelectBtn>
+                    </MapContainer>
                 </MapOverlay>
             )}
         </Wrapper>
