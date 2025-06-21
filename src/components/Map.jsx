@@ -246,23 +246,23 @@ export default function Map() {
             // 핑 이미지 선택
             let imageSrc = RedPing; // 나쁨(빨간 핑)
             if (rating >= 2.0) imageSrc = YellowPing; // 보통(노란 핑)
-            else if (rating >= 3.5 || rating == 0) imageSrc = BluePing; // 좋음 또는 평 없음(파란 핑)
+            if (rating >= 3.5 || rating == 0) imageSrc = BluePing; // 좋음 또는 평 없음(파란 핑)
 
             const imageSize = new window.kakao.maps.Size(30, 40); // 마커 크기 설정
             const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize); // 마커 이미지 및 크기 설정
 
-            const position = new window.kakao.maps.LatLng(longitude, latitude); // 마커 위치 설정
+            const position = new window.kakao.maps.LatLng(latitude, longitude); // 마커 위치 설정
 
             // 마커 생성
             const marker = new window.kakao.maps.Marker({
                 position,
                 image: markerImage,
+
             });
 
             // 마커 클릭 이벤트
             marker.addListener('click', () => {
                 setSelectedToilet(place);
-                setOverlayPosition(position);
             });
 
             marker.setMap(map);
@@ -274,6 +274,16 @@ export default function Map() {
 
         setMarkers(newMarkers);
     };
+
+    useEffect(() => {
+        if (!overlayRef.current || !selectedToilet) return;
+
+        const position = new window.kakao.maps.LatLng(
+            selectedToilet.latitude,
+            selectedToilet.longitude
+        );
+        setOverlayPosition(position);
+    }, [selectedToilet]);
 
     // CustomOverlay 렌더링
     useEffect(() => {
@@ -364,7 +374,5 @@ export default function Map() {
             </Debug>
         </Wrapper>
     );
-
-    
     
 }

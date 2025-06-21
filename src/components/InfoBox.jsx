@@ -102,8 +102,7 @@ export default function InfoBox({ data, onClose, navigate }) {
         toiletId, 
         buildingName, 
         rating, 
-        reviewCount, 
-        toiletStatus, 
+        reviewCount,
         hasDiaperTable, 
         hasHandicapAccess, 
         hasBidet, 
@@ -124,13 +123,10 @@ export default function InfoBox({ data, onClose, navigate }) {
                 <CloseBtn onClick={onClose} src={close} alt='close' />
             </Header>
             <InfoRow>
-                <Rating>{rating}</Rating>
+                <Rating>{rating === null ? 0.0.toFixed(1) : rating.toFixed(1)}</Rating>
                 <StarRating rating={rating} size="16px" />
                 <Count>({reviewCount === null ? 0 : reviewCount}건)</Count>
             </InfoRow>
-            <>
-                {toiletStatus}
-            </>
             <CheckRow>
                 <CheckBox>
                     <span>유아용 의자</span>

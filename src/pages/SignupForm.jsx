@@ -246,7 +246,7 @@ const SignupForm = () => {
         if (!nickname || nicknameValid !== true) return alert('닉네임 중복확인을 완료해주세요.');
 
         await axios
-            .post(`/api/register`, {
+            .post(`/register`, {
                 userId: id,
                 username: nickname,
                 password: password,
