@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import MenuModal from './MenuModal';
-import { useNavigate } from 'react-router-dom';
+import axios from '../api/axios';
+import { useAuth } from '../hooks/useAuth';
 
 const Wrapper = styled.div`
     position: relative;
@@ -34,12 +36,40 @@ const BarElement = styled.div`
 `;
 
 const SideBar = () => {
+    const { user, isLoggedIn, logout } = useAuth();
     const [selectedMenu, setSelectedMenu] = useState(0);
     const navigate = useNavigate();
     
-    const openMenu = (index) => {
-        setSelectedMenu(index);
+    const handleLogin = async () => {
+        if (isLoggedIn) {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
+            await axios
+                .post(`/logout`, null, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then(() => {
+                    logout(); // 토큰 제거
+                    alert('로그아웃되었습니다.');
+                    setSelectedMenu(0);
+                })
+                .catch(err => { console.error('로그아웃 실패:', err); });
+        } else {
+            navigate('/login');
+        }
+    };
+
+    const openMenu = (index) => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+            return;
+        }
+
+        setSelectedMenu(index);
     };
 
     const closeMenu = () => {
@@ -50,34 +80,24 @@ const SideBar = () => {
         <>
             <Wrapper>
                 <Outer>
-                    <BarElement selected={false} onClick={() => navigate('/login')}>
-                        로그인
+                    <BarElement selected={false} onClick={handleLogin}>
+                        {isLoggedIn ? '로그아웃' : '로그인'}
                     </BarElement>
                     <BarElement selected={selectedMenu === 1} onClick={() => openMenu(1)}>
                         <span>화장실</span>
-                        <span>찾기</span>
-                    </BarElement>
-                    <BarElement selected={selectedMenu === 2} onClick={() => openMenu(2)}>
-                        <span>화장실</span>
                         <span>등록</span>
                     </BarElement>
-                    <BarElement selected={selectedMenu === 3} onClick={() => openMenu(3)}>
+                    <BarElement selected={selectedMenu === 2} onClick={() => openMenu(2)}>
                         미션
                     </BarElement>
-                    <BarElement selected={selectedMenu === 4} onClick={() => openMenu(4)}>
+                    <BarElement selected={selectedMenu === 3} onClick={() => openMenu(3)}>
                         <span>선물</span>
                         <span>상점</span>
                     </BarElement>
-                    <BarElement selected={selectedMenu === 5} onClick={() => openMenu(5)}>
+                    <BarElement selected={selectedMenu === 4} onClick={() => openMenu(4)}>
                         프로필
                     </BarElement>
-                    <BarElement selected={selectedMenu === 6} onClick={() => openMenu(6)}>
-                        내 화장실
-                    </BarElement>
-                    <BarElement selected={selectedMenu === 7} onClick={() => openMenu(7)}>
-                        내 리뷰
-                    </BarElement>
-                    <BarElement selected={selectedMenu === 8} onClick={() => openMenu(8)}>
+                    <BarElement selected={selectedMenu === 5} onClick={() => openMenu(5)}>
                         내 선물
                     </BarElement>
                 </Outer>

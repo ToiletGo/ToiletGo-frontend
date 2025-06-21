@@ -51,20 +51,14 @@ const MenuModal = ({ selectedMenu, onClose }) => {
     const renderContent = () => {
         switch (selectedMenu) {
             case 1:
-                return <FindToilet />;
-            case 2:
                 return <RegisterToilet />;
-            case 3:
+            case 2:
                 return <Mission />;
-            case 4:
+            case 3:
                 return <GiftStore />;
-            case 5:
+            case 4:
                 return <UserProfile />;
-            case 6:
-                return <MyToilet />;
-            case 7:
-                return <MyReview />;
-            case 8:
+            case 5:
                 return <MyGift />;
             default:
                 return null;

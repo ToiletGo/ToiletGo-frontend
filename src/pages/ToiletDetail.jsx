@@ -1,7 +1,9 @@
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import StarRating from '../components/StarRating';
+import LoadingSpinner from '../components/LoadingSpinner';
+import axios from '../api/axios.js';
 import wc from '../assets/icon/wc.svg';
 import check from '../assets/icon/check.svg';
 
@@ -131,11 +133,40 @@ const CheckImg = styled.img`
 `;
 
 const ToiletDetail = () => {
+    const { toiletId } = useParams(); // URI 파라미터로부터 toiletId를 가져옴
+    const [toilet, setToilet] = useState(null);
     const [showTitle, setShowTitle] = useState(false);
     
     const navigate = useNavigate();
 
-        // 테스트용 mock data (API 연결 시 삭제)
+    
+    useEffect(() => {
+        const id = parseInt(toiletId, 10); // URL param은 string이므로 숫자로 변환
+        axios
+            .get(`/api/toilet/${id}`)
+            .then((res) => {
+                console.log('화장실 정보:', res.data);
+                setToilet(res.data);
+            })
+            .catch((err) => console.error('화장실 불러오기 실패:', err));
+    }, [toiletId]);
+    
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollY = window.scrollY;
+            // InfoContainer 상단 위치보다 아래로 내려오면 보여줌
+            if (scrollY > 85) {
+                setShowTitle(true);
+            } else {
+                setShowTitle(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // 테스트용 mock data (API 연결 시 삭제)
     const toilets = [
         {
             toiletId: 1,
@@ -180,23 +211,14 @@ const ToiletDetail = () => {
             note: '능동로 도로변에 위치한 넓은 화장실',
         },
     ];
+    // setToilet(toilets.filter((toilet) => toilet.toiletId === 1)[0]);
 
-    const toilet = toilets.filter((toilet) => toilet.toiletId === 1)[0];
-    
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollY = window.scrollY;
-            // InfoContainer 상단 위치보다 아래로 내려오면 보여줌
-            if (scrollY > 85) {
-                setShowTitle(true);
-            } else {
-                setShowTitle(false);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    // 만약 toilet이 아직 로딩 중이라면 로딩 화면을 보여줌
+    if (!toilet) {
+        return (
+            <LoadingSpinner />
+        );
+    }
 
     return (
         <Wrapper>
@@ -205,18 +227,19 @@ const ToiletDetail = () => {
                     <Icon src={wc} alt="Logo" />
                     ToiletGo
                 </Logo>
-                <HeaderTitle>{showTitle && toilet.buildingName}</HeaderTitle>
-                <Login onClick={() => navigate("/login")}>
-                    로그인
-                </Login>
+                <HeaderTitle>
+                    {showTitle && (toilet.buildingName || `화장실 ${toilet.toiletId}`)}
+                </HeaderTitle>
+                <Login onClick={() => navigate("/login")}>로그인</Login>
             </Header>
             <InfoContainer>
-                <Title>{toilet.buildingName}</Title>
+                <Title>{toilet.buildingName || `화장실 ${toilet.toiletId}`}</Title>
                 <InfoRow>
                     <Rating>{toilet.rating}</Rating>
                     <StarRating rating={toilet.rating} size="16px" />
-                    <Count>({toilet.reviewCount}건)</Count>
+                    <Count>({toilet.reviewCount || 0}건)</Count>
                 </InfoRow>
+                <div>{toilet.toiletStatus}</div>
                 <CheckRow>
                     <CheckBox>
                         <span>유아용 의자</span>
@@ -243,6 +266,7 @@ const ToiletDetail = () => {
                         </CheckBase>
                     </CheckBox>
                 </CheckRow>
+                <div>{toilet.note}</div>
             </InfoContainer>
         </Wrapper>
     )

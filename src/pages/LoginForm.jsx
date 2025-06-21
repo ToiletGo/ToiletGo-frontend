@@ -145,44 +145,45 @@ const Links = styled.div`
     }
 `;
 
-const LoginForm = ({ setIsLoggedIn }) => {
-    const [id, setId] = useState('');
+const LoginForm = () => {
+    const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [stayLoggedIn, setStayLoggedIn] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async () => {
-        if (!id || !password) {
+        if (!userId || !password) {
             alert('아이디와 비밀번호를 모두 입력해주세요.');
             return;
         }
 
-        try {
-            const response = await axios.post('/api/users/login', {
-                id,
-                password,
-            });
-
-            if (response.status === 200) {
-
-                const { userNo, id, nick } = response.data;
-
-                const userData = { userNo, id, nick };
-
-                if (stayLoggedIn) {
-                    localStorage.setItem('user', JSON.stringify(userData));
-                } else {
-                    sessionStorage.setItem('user', JSON.stringify(userData));
+        await axios
+            .post(`/login`, {
+                userid: userId,
+                password: password,
+            })
+            .then((res) => {
+                const token = res.headers['authorization']?.split(' ')[1]; // "Bearer <token>"
+                if (!token) {
+                    throw new Error('토큰이 응답되지 않았습니다.');
                 }
 
-                setIsLoggedIn(true);
+                // 저장 위치 결정
+                if (stayLoggedIn) {
+                    localStorage.setItem('token', token);
+                } else {
+                    sessionStorage.setItem('token', token);
+                }
+
+                // 로그인 상태 업데이트 이벤트 발생
+                window.dispatchEvent(new Event("storage"));
             
                 navigate('/');
-            }
-        } catch (error) {
-            console.error('로그인 실패:', error);
-            alert('아이디 또는 비밀번호가 올바르지 않습니다.');
-        }
+            })
+            .catch((error) => {
+                console.error('로그인 실패:', error);
+                alert('아이디 또는 비밀번호가 올바르지 않습니다.');
+            });
     };
 
     const handleSubmit = (e) => {
@@ -200,8 +201,8 @@ const LoginForm = ({ setIsLoggedIn }) => {
                 <Title>로그인</Title>
                 <Input
                     placeholder="ID"
-                    value={id}
-                    onChange={(e) => setId(e.target.value)}
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
                 />
                 <Input
                     placeholder="PW"
@@ -219,8 +220,6 @@ const LoginForm = ({ setIsLoggedIn }) => {
                 </StayLogin>
                 <LoginBtn type="submit">로그인</LoginBtn>
                 <Links>
-                    <NavLink to="/findID">아이디 찾기</NavLink>
-                    <NavLink to="/findPW">비밀번호 찾기</NavLink>
                     <NavLink to="/signup">회원가입</NavLink>
                 </Links>
             </LoginWrapper>

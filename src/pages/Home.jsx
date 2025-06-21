@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Header from '../components/Header';
 import Map from '../components/Map';
 import SideBar from '../components/SideBar';
 

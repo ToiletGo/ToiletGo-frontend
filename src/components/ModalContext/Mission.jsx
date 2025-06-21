@@ -23,14 +23,12 @@ const Row = styled.div`
     flex-direction: column;
     padding: 20px;
     gap: 10px;
-
 `;
 
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
 `;
-
 
 const Name = styled.div`
     font-size: 18px;

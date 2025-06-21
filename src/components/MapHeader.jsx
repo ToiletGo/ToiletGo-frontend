@@ -89,7 +89,7 @@ const MyPosition = styled.div`
     cursor: pointer;
 `;
 
-const Header = ({ onFilterChange, onLocateMe }) => {
+const MapHeader = ({ onFilterChange, onLocateMe }) => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [selected, setSelected] = useState(false);
     const [filters, setFilters] = useState({
@@ -155,4 +155,4 @@ const Header = ({ onFilterChange, onLocateMe }) => {
     )
 }
 
-export default Header;
+export default MapHeader;

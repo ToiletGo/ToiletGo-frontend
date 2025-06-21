@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import axios from '../api/axios';
-import Header from '../components/Header.jsx';
+import MapHeader from '../components/MapHeader.jsx';
 import InfoBox from '../components/InfoBox.jsx';
 import RedPing from '../assets/icon/red_ping.svg';
 import YellowPing from '../assets/icon/yellow_ping.svg';
@@ -19,6 +19,7 @@ const Wrapper = styled.div`
 const MapContainer = styled.div`
     width: 100%;
     height: 100%;
+    background-color: #eee;
 `;
 
 const Debug = styled.div`
@@ -161,12 +162,10 @@ export default function Map() {
         document.head.appendChild(script);
     }, []);
 
-    // 최초 한번 api 무조건 호출
     useEffect(() => {
         axios
-            .get('http://15.164.220.91:8080/api/toilets')
+            .get(`/api/toilets`)
             .then((res) => {
-                console.log(res.data)
                 renderMarkers(res.data);
             })
             .catch((err) => console.error('화장실 불러오기 실패:', err));
@@ -203,7 +202,7 @@ export default function Map() {
         if (!map || !clusterer) return;
 
         axios
-            .get('http://15.164.220.91:8080/api/toilets')
+            .get(`/api/toilets`)
             .then((res) => {
                 const filtered = res.data.filter((toilet) => {
                     if (filters.hasDiaperTable && !toilet.hasDiaperTable) return false;
@@ -331,10 +330,10 @@ export default function Map() {
                     const newCenter = new window.kakao.maps.LatLng(lat, lng);
 
                     mapRef.current.setCenter(newCenter); // 중심 이동
-                    mapRef.current.setLevel(5) // 확대율 변경
+                    mapRef.current.setLevel(3) // 확대율 변경
 
                     setCenter({ lat, lng });
-                    setLevel(5);
+                    setLevel(3);
                 },
                 (error) => {
                     alert("위치 정보를 가져올 수 없습니다.");
@@ -350,7 +349,7 @@ export default function Map() {
 
     return (
         <Wrapper>
-            <Header onFilterChange={handleFilterChange} onLocateMe={handleLocateMe} />
+            <MapHeader onFilterChange={handleFilterChange} onLocateMe={handleLocateMe} />
             <Indicator />
             <MapContainer ref={container} />
             <Debug>
