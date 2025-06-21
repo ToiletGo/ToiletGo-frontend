@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useEffect, useRef, useState } from 'react';
+import axios from '../../api/axios.js';
 import check from '../../assets/icon/check.svg';
 import bluePing from '../../assets/icon/blue_ping.svg';
 
@@ -204,8 +205,23 @@ export default function RegisterToilet() {
             return;
         }
 
-        // 등록 로직(api 호출)
-        alert('등록되었습니다!');
+        // 등록 api 호출
+        axios
+            .post(`/api/toilet`, {
+                userId: 1, // 임시로 1번 유저로 설정, 실제로는 로그인한 유저의 ID를 사용해야 함
+                buildingName: buildingName,
+                latitude: location.lat,
+                longitude: location.lng,
+                hasDiaperTable: hasDiaperTable,
+                hasHandicapAccess: hasHandicapAccess,
+                hasBidet: hasBidet,
+                hasTissue: hasTissue,
+                note: note,
+            })
+            .then(() => {
+                alert('등록되었습니다!');
+            })
+            .catch((err) => console.error('화장실 등록 실패:', err));
     };
 
     return (

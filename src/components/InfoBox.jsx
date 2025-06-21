@@ -118,7 +118,7 @@ export default function InfoBox({ data, onClose, navigate }) {
         >
             <Header>
                 <Title onClick={() => navigate(`/toilet/${toiletId}`)}>
-                    {buildingName}
+                    {buildingName === null ? `화장실 ${toiletId}` : buildingName}
                     <ShowDetailBtn src={rightBtn} alt='rightBtn' />
                 </Title>
                 <CloseBtn onClick={onClose} src={close} alt='close' />
@@ -126,7 +126,7 @@ export default function InfoBox({ data, onClose, navigate }) {
             <InfoRow>
                 <Rating>{rating}</Rating>
                 <StarRating rating={rating} size="16px" />
-                <Count>({reviewCount}건)</Count>
+                <Count>({reviewCount === null ? 0 : reviewCount}건)</Count>
             </InfoRow>
             <>
                 {toiletStatus}

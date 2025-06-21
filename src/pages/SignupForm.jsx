@@ -201,34 +201,37 @@ const SignupForm = () => {
     
     // 아이디 중복확인
     const handleCheckId = async () => {
-        if (id.trim() === '') return;
-    
-        try {
+        if (id.trim() === '') {
+            alert('아이디를 입력해주세요.');
+            return;
+        }
+
         // 서버로 POST 요청 보내서 아이디 중복 확인
-        const response = await axios.post('/api/users/check-id', { id: id.trim() });
-        
-        if (response.data.available) {
-            setIdValid(true); // 사용 가능
-        } else {
-            setIdValid(false); // 사용 불가능
-        }
-        } catch (error) {
-            console.error('아이디 중복확인 오류:', error);
-            alert('아이디 중복확인 중 오류가 발생했습니다.');
-        }
+        await axios
+            .get(`/api/user/id/check?userId=${id.trim()}`)
+            .then((res) => {
+                setIdValid(res.data); // true/false 반환
+            })
+            .catch((error) => {
+                console.error('아이디 중복확인 에러:', error);
+            });
     };
 
     // 닉네임 중복확인
     const handleCheckNickname = async () => {
-        if (nickname.trim() === '') return;
-
-        try {
-            const response = await axios.post('/api/users/check-nick', { nick: nickname });
-            setNicknameValid(response.data.available);
-        } catch (error) {
-            console.error('닉네임 중복확인 에러:', error);
-            setNicknameValid(false);
+        if (nickname.trim() === '') {
+            alert('닉네임을 입력해주세요.');
+            return;
         }
+
+        await axios
+            .get(`/api/user/username/check?username=${nickname.trim()}`)
+            .then((res) => {
+                setNicknameValid(res.data); // true/false 반환
+            })
+            .catch((error) => {
+                console.error('닉네임 중복확인 에러:', error);
+            });
     };
 
     // 회원가입 유효성 검사 및 제출
@@ -242,21 +245,23 @@ const SignupForm = () => {
         // 3. 닉네임 중복확인 안했으면 막기
         if (!nickname || nicknameValid !== true) return alert('닉네임 중복확인을 완료해주세요.');
 
-        try {
-            const response = await axios.post('/api/users/join', {
-                id,
-                password,
-                nick,
-            });
-        
-            if (response.status === 200) {
-                alert('회원가입 완료!');
-                navigate('/login');
+        await axios
+            .post(`/api/register`, {
+                userId: id,
+                username: nickname,
+                password: password,
             }
-        } catch (error) {
-            console.error('회원가입 에러:', error);
-            alert('회원가입이 실패하였습니다.');
-        }
+        )
+            .then((res) => {
+                if (res.status === 200) {
+                    alert('회원가입이 완료되었습니다!');
+                    navigate('/login'); // 회원가입 후 로그인 페이지로 이동
+                }
+            })
+            .catch((error) => {
+                console.error('회원가입 에러:', error);
+                alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+            });
     };
 
     return (
@@ -268,7 +273,7 @@ const SignupForm = () => {
             <SignupWrapper>
                 <Title>회원가입</Title>
 
-                {/* ✅ 아이디 입력 + 버튼 */}
+                {/* 아이디 입력 + 버튼 */}
                 <InputWithBtn>
                     <Input
                         placeholder="아이디"
@@ -278,10 +283,10 @@ const SignupForm = () => {
                             setIdValid(null); // 입력 중엔 메시지 초기화
                         }}
                     />
-                    <CheckBtn onClick={handleCheckId}>중복확인</CheckBtn>
+                    <CheckBtn type="button" onClick={handleCheckId}>중복확인</CheckBtn>
                 </InputWithBtn>
 
-                {/* ✅ 아이디 중복 확인 메시지 출력 */}
+                {/* 아이디 중복 확인 메시지 출력 */}
                 {id && idValid !== null && (
                     <IdMessage valid={idValid}>
                         {idValid ? '사용 가능한 아이디입니다' : '이미 사용 중인 아이디입니다'}
@@ -321,7 +326,7 @@ const SignupForm = () => {
                         setNicknameValid(null); // 입력 중이면 메시지 초기화
                         }}
                     />
-                    <CheckBtn onClick={handleCheckNickname}>중복확인</CheckBtn>
+                    <CheckBtn type="button" onClick={handleCheckNickname}>중복확인</CheckBtn>
                 </InputWithBtn>
 
                 {/* 닉네임 중복 체크 메시지 출력 */}
@@ -331,7 +336,7 @@ const SignupForm = () => {
                 </IdMessage>
                 )}
 
-                <SignupBtn>회원가입</SignupBtn>
+                <SignupBtn type="button" onClick={handleSubmit}>회원가입</SignupBtn>
             </SignupWrapper>
         </Wrapper>
     )
