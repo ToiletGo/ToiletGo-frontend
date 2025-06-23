@@ -66,52 +66,6 @@ export default function Map() {
     }
     };
 
-    // 테스트용 mock data (API 연결 시 삭제)
-    /*const toilets = [
-        {
-            toiletId: 1,
-            latitude: 37.537375,
-            longitude: 127.082,
-            buildingName: '중곡 공중화장실',
-            rating: 4.2,
-            reviewCount: 10,
-            toiletStatus: "여 1, 남 1",
-            hasDiaperTable: false,
-            hasHandicapAccess: true,
-            hasBidet: true,
-            hasTissue: true,
-            note: '중곡역 출구 앞에 위치한 화장실입니다.',
-        },
-        {
-            toiletId: 2,
-            latitude: 37.539,
-            longitude: 127.085,
-            buildingName: '자양 화장실',
-            rating: 2.3,
-            reviewCount: 20,
-            toiletStatus: "여 3, 남 3",
-            hasDiaperTable: true,
-            hasHandicapAccess: false,
-            hasBidet: false,
-            hasTissue: false,
-            note: '자양동 공원 내 위치',
-        },
-        {
-            toiletId: 3,
-            latitude: 37.535,
-            longitude: 127.078,
-            buildingName: '능동 화장실',
-            rating: 1.4,
-            reviewCount: 15,
-            toiletStatus: "여 4, 남 4",
-            hasDiaperTable: true,
-            hasHandicapAccess: true,
-            hasBidet: true,
-            hasTissue: true,
-            note: '능동로 도로변에 위치한 넓은 화장실',
-        },
-    ];*/
-    
     // 지도 초기화
     useEffect(() => {
         const script = document.createElement('script');

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useAuth } from '../../hooks/useAuth'
 import pointIcon from '../../assets/icon/point.svg';
 import coffee from '../../assets/images/gift/CoffeeGift.png';
 import cake from '../../assets/images/gift/CakeGift.png';
@@ -101,8 +102,24 @@ const GiftStore = () => {
         { id: 7, name: 'CU 20000원 상품권', image: cu20000, cost: 2000, isAssigned: true },
     ];
 
-    const [point, setPoint] = useState(3000);
+    const { userId } = useAuth();
+    const [point, setPoint] = useState(0);
     const [giftList, setGiftList] = useState(tempList);
+
+    useEffect(() => {
+        // 초기 포인트 설정
+        axios
+            .post(`/api/profile`, {
+                userId: userId,
+                userName: ""
+            })
+            .then((res) => {
+                const initialPoint = res.data.userPoint || 0;
+                setPoint(initialPoint);
+            })
+        setPoint(initialPoint);
+        
+    }, []);
 
     const BuyGift = (gift) => {
         // 포인트가 부족한 경우
