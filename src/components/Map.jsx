@@ -359,7 +359,7 @@ export default function Map() {
 
     return (
         <Wrapper>
-            <MapHeader onFilterChange={handleFilterChange} onLocateMe={handleLocateMe} />
+            <MapHeader map={mapRef.current} onFilterChange={handleFilterChange} onLocateMe={handleLocateMe} />
             <Indicator />
             <MapContainer ref={container} />
             <Debug>

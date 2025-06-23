@@ -143,7 +143,9 @@ const ToiletDetail = () => {
     useEffect(() => {
         const id = parseInt(toiletId, 10); // URL param은 string이므로 숫자로 변환
         axios
-            .get(`/api/toilet/${id}`)
+            .post(`/api/toilet/get`, {
+                toiletId: id,
+            })
             .then((res) => {
                 console.log('화장실 정보:', res.data);
                 setToilet(res.data);
