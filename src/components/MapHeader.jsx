@@ -89,7 +89,7 @@ const MyPosition = styled.div`
     cursor: pointer;
 `;
 
-const MapHeader = ({ onFilterChange, onLocateMe }) => {
+const MapHeader = ({ map, onFilterChange, onLocateMe }) => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [selected, setSelected] = useState(false);
     const [filters, setFilters] = useState({
@@ -117,7 +117,7 @@ const MapHeader = ({ onFilterChange, onLocateMe }) => {
     return (
         <Wrapper>
             <LeftSide>
-                <SearchBar />
+                <SearchBar map={map} />
                 <Filter selected={selected} onClick={toggleFilter}>필터</Filter>
                 {showDropdown && (
                     <Dropdown>
