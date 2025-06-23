@@ -2,16 +2,30 @@ import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import StarRating from '../components/StarRating';
+import StarPicker from '../components/StarPicker';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useAuth } from '../hooks/useAuth';
 import axios from '../api/axios.js';
 import wc from '../assets/icon/wc.svg';
 import check from '../assets/icon/check.svg';
+import report from '../assets/icon/report.svg';
+import del from '../assets/icon/delete.svg';
+import droplet from '../assets/icon/droplet.svg';
+import dropletHalf from '../assets/icon/droplet_half.svg';
+import dropletFill from '../assets/icon/droplet_fill.svg';
+import defaultImg from '../assets/icon/default_profile.svg';
+import toiletImg1 from '../assets/images/toilet/toilet1.png';
+import toiletImg2 from '../assets/images/toilet/toilet2.png';
+import toiletImg3 from '../assets/images/toilet/toilet3.png';
+import toiletImg4 from '../assets/images/toilet/toilet4.png';
+import toiletImg5 from '../assets/images/toilet/toilet5.png';
 
 const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 0 auto;
+    padding-bottom: 20px;
 `;
 
 const Header = styled.div`
@@ -68,7 +82,7 @@ const InfoContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 600px;
-    height: 1000px;
+    min-height: 1000px;
     border: 1px solid #ccc;
     border-radius: 15px;
     margin-top: 85px;
@@ -88,6 +102,40 @@ const InfoRow = styled.div`
     display: flex;
     align-items: center;
     margin-bottom: 16px;
+`;
+
+const ImageRow = styled.div`
+    display: flex;
+    height: 200px;
+    gap: 10px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+`;
+
+const MainImg = styled.img`
+    width: 60%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #bbb;
+`;
+
+const SubImgGrid = styled.div`
+    width: 40%;
+    height: 200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    box-sizing: border-box;
+`;
+
+const SubImg = styled.img`
+    width: 100%;
+    height: 97px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #bbb;
 `;
 
 const Rating = styled.span`
@@ -132,14 +180,154 @@ const CheckImg = styled.img`
     height: 30px;
 `;
 
+const ReviewRow = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 30px 0px;
+    padding: 30px;
+    gap: 20px;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+`;
+
+const ReviewInput = styled.textarea`
+    width: 95%;
+    height: 60px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: none;
+    font-size: 16px;
+    font-family: "pretendard-regular";
+`;
+
+const SubmitBtn = styled.button`
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4a95e5;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #3b7dd8;
+    }
+`;
+
+const ReviewList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;    
+
+const ProfileRow = styled.div`
+    display: flex;
+    align-items: center;
+    padding-top: 20px;
+    margin-bottom: 10px;
+    border-top: 1px solid #ddd;
+`;
+
+const ProfileImg = styled.img`
+    width: 50px;
+    height: 50px;
+    border-radius: 35%;
+    margin-right: 10px;
+`;
+
+const ProfileInfo = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const Name = styled.div`
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+`;
+
+const TrustPoint = styled.div`
+    display: flex;
+    align-items: center;
+    color: #4A95E5;
+    font-size: 14px;
+    gap: 4px;
+`;
+
+const TrustImg = styled.img`
+    width: 20px;
+    height: 20px;
+`;
+
+const Date = styled.div`
+    display: flex;
+    color: #888;
+    font-size: 14px;
+    gap: 5px;
+`;
+
 const ToiletDetail = () => {
+     const reviewList = [
+        {
+            reviewId: 1,
+            userId: 'user1',
+            toiletId: 1,
+            rating: 4,
+            userTrust: 8,
+            comment: '화장실이 깨끗하고 편리합니다.',
+            reviewAt: '2025-06-23T23:31:57.941857',
+        },
+        {
+            reviewId: 2,
+            userId: 'user2',
+            toiletId: 1,
+            rating: 5,
+            userTrust: 9,
+            comment: '정말 깨끗하고 좋았습니다!',
+            reviewAt: '2025-06-16T23:31:57.941857',
+        },
+        {
+            reviewId: 3,
+            userId: 'user3',
+            toiletId: 1,
+            rating: 3,
+            userTrust: 7,
+            comment: '보통이에요.',
+            reviewAt: '2025-06-15T23:31:57.941857',
+        },
+        {
+            reviewId: 4,
+            userId: 'user4',
+            toiletId: 1,
+            rating: 4,
+            userTrust: 8,
+            comment: '좋은 화장실입니다.',
+            reviewAt: '2025-06-14T23:31:57.941857',
+        },
+        {
+            reviewId: 5,
+            userId: 'user5',
+            toiletId: 1,
+            rating: 2,
+            userTrust: 3,
+            comment: '완전 더럽고 최악!',
+            reviewAt: '2025-06-05T23:31:57.941857',
+        }
+    ];
+
     const { toiletId } = useParams(); // URI 파라미터로부터 toiletId를 가져옴
+    const { isLoggedIn, logout } = useAuth();
     const [toilet, setToilet] = useState(null);
     const [showTitle, setShowTitle] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+    const [reviews, setReviews] = useState(reviewList);
     
     const navigate = useNavigate();
 
-    
     useEffect(() => {
         const id = parseInt(toiletId, 10); // URL param은 string이므로 숫자로 변환
         axios
@@ -152,7 +340,50 @@ const ToiletDetail = () => {
             })
             .catch((err) => console.error('화장실 불러오기 실패:', err));
     }, [toiletId]);
-    
+
+    useEffect(() => {
+        const id = parseInt(toiletId, 10);
+
+        const fetchReviewsWithUserData = async () => {
+            try {
+                // 리뷰 가져오기
+                const reviewRes = await axios.post(`/api/reviews/get`, { toiletId: id });
+                const fetchedReviews = reviewRes.data;
+
+                // 리뷰마다 사용자 정보 가져오기
+                const userPromises = fetchedReviews.map((review) =>
+                    axios
+                    .post(`/api/profile`, {
+                        userId: review.userId,
+                        userName: "", // 필요없지만 API 요구사항일 경우 유지
+                    })
+                    .then(res => ({
+                        ...review,
+                        userName: res.data.userName,
+                        userTrust: res.data.userTrust,
+                        userProfileImg: res.data.userProfileImg || defaultImg,
+                    }))
+                    .catch(err => {
+                        console.error(`유저 정보 불러오기 실패:`, err);
+                        return {
+                            ...review,
+                            userName: review.userId,
+                            userTrust: 0,
+                            userProfileImg: defaultImg,
+                        };
+                    })
+                );
+
+                const enrichedReviews = await Promise.all(userPromises);
+                setReviews(enrichedReviews);
+            } catch (err) {
+                console.error('리뷰 또는 유저 정보 불러오기 실패:', err);
+            }
+        };
+
+        fetchReviewsWithUserData();
+    }, [toiletId]);
+
     useEffect(() => {
         const handleScroll = () => {
             const scrollY = window.scrollY;
@@ -168,52 +399,78 @@ const ToiletDetail = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // 테스트용 mock data (API 연결 시 삭제)
-    const toilets = [
-        {
-            toiletId: 1,
-            latitude: 37.537375,
-            longitude: 127.082,
-            buildingName: '중곡 공중화장실',
-            rating: 4.2,
-            reviewCount: 10,
-            toiletStatus: "여 1, 남 1",
-            hasDiaperTable: false,
-            hasHandicapAccess: true,
-            hasBidet: true,
-            hasTissue: true,
-            note: '중곡역 출구 앞에 위치한 화장실입니다.',
-        },
-        {
-            toiletId: 2,
-            latitude: 37.539,
-            longitude: 127.085,
-            buildingName: '자양 화장실',
-            rating: 2.3,
-            reviewCount: 20,
-            toiletStatus: "여 3, 남 3",
-            hasDiaperTable: true,
-            hasHandicapAccess: false,
-            hasBidet: false,
-            hasTissue: false,
-            note: '자양동 공원 내 위치',
-        },
-        {
-            toiletId: 3,
-            latitude: 37.535,
-            longitude: 127.078,
-            buildingName: '능동 화장실',
-            rating: 1.4,
-            reviewCount: 15,
-            toiletStatus: "여 4, 남 4",
-            hasDiaperTable: true,
-            hasHandicapAccess: true,
-            hasBidet: true,
-            hasTissue: true,
-            note: '능동로 도로변에 위치한 넓은 화장실',
-        },
-    ];
-    // setToilet(toilets.filter((toilet) => toilet.toiletId === 1)[0]);
+    const handleLogin = async () => {
+        if (isLoggedIn) {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+            await axios
+                .post(`/logout`, null, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then(() => {
+                    logout(); // 토큰 제거
+                    alert('로그아웃되었습니다.');
+                })
+                .catch(err => { console.error('로그아웃 실패:', err); });
+        } else {
+            navigate('/login');
+        }
+    };
+
+    const handleSubmit = () => {
+        if (!comment) {
+            alert('리뷰를 작성해주세요.');
+            return;
+        }
+
+        if (rating == 0) {
+            alert('별점을 선택해주세요.');
+            return;
+        }
+
+        // 리뷰 등록 API 호출
+        axios
+            .post(`/api/reviews/create`, {
+                toiletId: toilet.toiletId,
+                rating: rating,
+                comment: comment,
+            })
+            .then((res) => {
+                setReviews([...reviews, { ...res.data, date: new Date().toLocaleDateString() }]);
+                setComment('');
+            })
+            .catch((err) => console.error('리뷰 등록 실패:', err));
+    }
+
+    const handleToiletReport = () => {
+
+    }
+
+    const handleReviewReport = () => {
+        if (!isLoggedIn) {
+            alert('로그인 후 신고할 수 있습니다.');
+            navigate('/login');
+        }
+
+        // 신고 항목 선택
+
+        // 신고 API 호출
+        axios
+            .post(`/api/report/create`, {
+                toiletId: toilet.toiletId,
+                description: "",
+                reportType: "",
+            })
+            .then(() => {
+                alert('신고가 접수되었습니다.');
+            })
+            .catch((err) => {
+                console.error('신고 실패:', err);
+                alert('신고에 실패했습니다. 나중에 다시 시도해주세요.');
+            });
+    }
 
     // 만약 toilet이 아직 로딩 중이라면 로딩 화면을 보여줌
     if (!toilet) {
@@ -232,16 +489,36 @@ const ToiletDetail = () => {
                 <HeaderTitle>
                     {showTitle && (toilet.buildingName || `화장실 ${toilet.toiletId}`)}
                 </HeaderTitle>
-                <Login onClick={() => navigate("/login")}>로그인</Login>
+                <Login onClick={handleLogin}>{isLoggedIn ? '로그아웃' : '로그인'}</Login>
             </Header>
             <InfoContainer>
                 <Title>{toilet.buildingName || `화장실 ${toilet.toiletId}`}</Title>
                 <InfoRow>
-                    <Rating>{toilet.rating}</Rating>
+                    <Rating>{toilet.rating === null ? 0.0.toFixed(1) : toilet.rating.toFixed(1)}</Rating>
                     <StarRating rating={toilet.rating} size="16px" />
                     <Count>({toilet.reviewCount || 0}건)</Count>
                 </InfoRow>
-                <div>{toilet.toiletStatus}</div>
+                <ImageRow>
+                    <MainImg src={toiletImg1} alt="Main toilet img" />
+                    <SubImgGrid>
+                        <SubImg src={toiletImg2} alt="Sub toilet img" />
+                        <SubImg src={toiletImg3} alt="Sub toilet img" />
+                        <SubImg src={toiletImg4} alt="Sub toilet img" />
+                        <SubImg src={toiletImg5} alt="Sub toilet img" />
+                    </SubImgGrid>
+                    {/* {toilet.images && toilet.images.length > 0 ? (
+                        <>
+                            <MainImg src={toilet.images[0]} alt="Main toilet img" />
+                            <SubImgGrid>
+                                {toilet.images.slice(1, 5).map((image, idx) => (
+                                    <SubImg key={idx} src={image} alt={`Sub toilet img ${idx + 2}`} />
+                                ))}
+                            </SubImgGrid>
+                        </>
+                    ) : (
+                        "이미지가 없습니다."
+                    )} */}
+                </ImageRow>
                 <CheckRow>
                     <CheckBox>
                         <span>유아용 의자</span>
@@ -269,6 +546,48 @@ const ToiletDetail = () => {
                     </CheckBox>
                 </CheckRow>
                 <div>{toilet.note}</div>
+                <ReviewRow>
+                    방문 후기를 남겨주세요!
+                    <StarPicker 
+                        size="40px"
+                        value={rating}
+                        onChange={(val) => setRating(val)}
+                    />
+                    <ReviewInput 
+                        placeholder="리뷰를 작성해주세요. (최대 100자)"
+                        value={comment}
+                        onChange={e => setComment(e.target.value)}
+                        maxLength={100}
+                    />
+                    <SubmitBtn onClick={handleSubmit}>등록하기</SubmitBtn>
+                </ReviewRow>
+                <ReviewList>
+                    {reviews.map((review) => (
+                        <div key={review.reviewId}>
+                            <ProfileRow>
+                                <ProfileImg src={review.userProfileImg || defaultImg} alt="profile" />
+                                <ProfileInfo>
+                                    <Name>{review.userName || review.userId}</Name>
+                                    <TrustPoint>
+                                        {review.userTrust > 7 ? (
+                                            <TrustImg src={dropletFill} alt="신뢰도 높음" />
+                                        ) : review.userTrust >= 4 ? (
+                                            <TrustImg src={dropletHalf} alt="신뢰도 중간" />
+                                        ) : (
+                                            <TrustImg src={droplet} alt="신뢰도 낮음" />
+                                        )}
+                                        {review.userTrust}
+                                    </TrustPoint>
+                                </ProfileInfo>
+                            </ProfileRow>
+                            <Date>
+                                <StarRating rating={review.rating} size="16px" />
+                                {review.reviewAt.substr(0, 10)}
+                            </Date>
+                            <p>{review.comment}</p>
+                        </div>
+                    ))}
+                </ReviewList>
             </InfoContainer>
         </Wrapper>
     )

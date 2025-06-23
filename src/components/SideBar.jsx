@@ -36,7 +36,7 @@ const BarElement = styled.div`
 `;
 
 const SideBar = () => {
-    const { user, isLoggedIn, logout } = useAuth();
+    const { isLoggedIn, logout } = useAuth();
     const [selectedMenu, setSelectedMenu] = useState(0);
     const navigate = useNavigate();
     
