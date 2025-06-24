@@ -453,7 +453,10 @@ const ToiletDetail = () => {
                 setReviews([...reviews, { ...res.data, date: new Date().toLocaleDateString() }]);
                 setComment('');
             })
-            .catch((err) => console.error('리뷰 등록 실패:', err));
+            .catch((err) => {
+                console.error('리뷰 등록 실패:', err);
+            })
+        alert("리뷰가 등록되었습니다.");
     }
 
     const handleToiletReport = (toiletId) => {
