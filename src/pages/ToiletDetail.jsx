@@ -484,15 +484,21 @@ const ToiletDetail = () => {
     };
 
     const handleSubmit = () => {
+        if (!isLoggedIn) {
+            alert('로그인 후 신고할 수 있습니다.');
+            navigate('/login');
+        }
+        
+        if (rating == 0) {
+            alert('별점을 선택해주세요.');
+            return;
+        }
+        
         if (!comment) {
             alert('리뷰를 작성해주세요.');
             return;
         }
 
-        if (rating == 0) {
-            alert('별점을 선택해주세요.');
-            return;
-        }
         /*
         // 리뷰 등록 API 호출
         axios

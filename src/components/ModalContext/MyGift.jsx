@@ -24,13 +24,13 @@ const ListWrapper = styled.div`
 
 const MyGift = () => {
     const tempList = [
-        { id: 1, name: '스타벅스 아메리카노', image: coffee, code: '0000 0000 0000 0000', expiration: '2025-12-31' },
-        { id: 2, name: '투썸플레이스 조각 치즈 케이크', image: cake, code: '1111 1111 1111 1111', expiration: '2025-12-31' },
-        { id: 3, name: 'CU 5000원 상품권', image: cu5000, cost: 500, code: '2222 2222 2222 2222', expiration: '2025-12-31' },
-        { id: 4, name: '롯데리아 불고기 버거 세트', image: burger, cost: 850, code: '3333 3333 3333 3333', expiration: '2025-12-31' },
-        { id: 5, name: '피자스쿨 콤비네이션 피자', image: pizza, cost: 950, code: '4444 4444 4444 4444', expiration: '2025-12-31' },
-        { id: 6, name: 'CU 10000원 상품권', image: cu10000, cost: 1000, code: '5555 5555 5555 5555', expiration: '2025-12-31' },
-        { id: 7, name: 'CU 20000원 상품권', image: cu20000, cost: 2000, code: '6666 6666 6666 6666', expiration: '2025-12-31' },
+        { id: 1, name: '스타벅스 아메리카노', image: coffee, code: '5132 2240 9874 1470', expiration: '2025-07-24' },
+        { id: 2, name: '투썸플레이스 조각 치즈 케이크', image: cake, code: '8112 0027 1671 3347', expiration: '2025-07-24' },
+        { id: 3, name: 'CU 5000원 상품권', image: cu5000, cost: 500, code: '2580 6792 9702 5172', expiration: '2025-07-24' },
+        { id: 4, name: '롯데리아 불고기 버거 세트', image: burger, cost: 850, code: '3673 7711 8403 0073', expiration: '2025-07-24' },
+        { id: 5, name: '피자스쿨 콤비네이션 피자', image: pizza, cost: 950, code: '2498 9874 2194 0004', expiration: '2025-07-24' },
+        { id: 6, name: 'CU 10000원 상품권', image: cu10000, cost: 1000, code: '5555 5555 5555 5555', expiration: '2025-07-24' },
+        { id: 7, name: 'CU 20000원 상품권', image: cu20000, cost: 2000, code: '6666 6666 6666 6666', expiration: '2025-07-24' },
     ];
 
     const [giftList, setGiftList] = useState(tempList);
