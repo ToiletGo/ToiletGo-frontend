@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import coffee from '../../assets/images/gift/CoffeeGift.png';
 import cake from '../../assets/images/gift/CakeGift.png';
@@ -7,6 +7,7 @@ import burger from '../../assets/images/gift/BurgerGift.png';
 import pizza from '../../assets/images/gift/PizzaGift.png';
 import cu10000 from '../../assets/images/gift/CU10000.png';
 import cu20000 from '../../assets/images/gift/CU20000.png';
+import axios from 'axios';
 
 const Wrapper = styled.div`
     display: flex;
@@ -34,9 +35,14 @@ const MyGift = () => {
 
     const [giftList, setGiftList] = useState(tempList);
 
+    useEffect(() => {
+        axios
+            .get(`/api/gifts`)
+    }, [])
+
     return (
         <Wrapper>
-            <h2>선물 상점</h2>
+            <h2>내 선물</h2>
             <ListWrapper>
                 {giftList.map((gift) => (
                     <div key={gift.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>

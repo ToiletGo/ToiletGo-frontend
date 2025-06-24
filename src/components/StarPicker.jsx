@@ -11,7 +11,7 @@ const Wrapper = styled.div`
 `;
 
 const Star = styled.span`
-  color: ${props => (props.active ? '#ff5d5d' : '#ccc')};
+  color: ${({active}) => (active ? '#ff5d5d' : '#ccc')};
   transition: color 0.2s;
 `;
 

@@ -89,6 +89,12 @@ const InfoContainer = styled.div`
     padding: 25px;
 `;
 
+const TitleRow = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+`;
+
 const Title = styled.div`
     display: inline-block;
     justify-content: center;
@@ -269,8 +275,14 @@ const Date = styled.div`
     gap: 5px;
 `;
 
+const Report = styled.img`
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+`;
+
 const ToiletDetail = () => {
-     const reviewList = [
+    const reviewList = [
         {
             reviewId: 1,
             userId: 'user1',
@@ -402,18 +414,18 @@ const ToiletDetail = () => {
     const handleLogin = async () => {
         if (isLoggedIn) {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-
-            await axios
-                .post(`/logout`, null, {
+            try {
+                await axios.post(`/logout`, {}, {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,
                     },
-                })
-                .then(() => {
-                    logout(); // 토큰 제거
-                    alert('로그아웃되었습니다.');
-                })
-                .catch(err => { console.error('로그아웃 실패:', err); });
+                });
+            } catch (err) {
+                console.warn('서버 로그아웃 실패 (무시):', err);
+            } finally {
+                logout();
+                alert('로그아웃되었습니다.');
+            }
         } else {
             navigate('/login');
         }
@@ -444,11 +456,28 @@ const ToiletDetail = () => {
             .catch((err) => console.error('리뷰 등록 실패:', err));
     }
 
-    const handleToiletReport = () => {
-
+    const handleToiletReport = (toiletId) => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        axios  
+            .post(`/api/report/create`, {
+                toiletId: toiletId,
+                description: 'a',
+                reportType: 'a'
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then(() => {
+                alert('신고가 접수되었습니다.');
+            })
+            .catch((err) => {
+                console.error('신고 실패:', err);
+                alert('신고에 실패했습니다. 나중에 다시 시도해주세요.');
+            });
     }
 
-    const handleReviewReport = () => {
+    const handleReviewReport = (reviewId) => {
         if (!isLoggedIn) {
             alert('로그인 후 신고할 수 있습니다.');
             navigate('/login');
@@ -459,9 +488,9 @@ const ToiletDetail = () => {
         // 신고 API 호출
         axios
             .post(`/api/report/create`, {
-                toiletId: toilet.toiletId,
-                description: "",
-                reportType: "",
+                reviewId: reviewId,
+                description: 'a',
+                reportType: 'a'
             })
             .then(() => {
                 alert('신고가 접수되었습니다.');
@@ -492,7 +521,10 @@ const ToiletDetail = () => {
                 <Login onClick={handleLogin}>{isLoggedIn ? '로그아웃' : '로그인'}</Login>
             </Header>
             <InfoContainer>
-                <Title>{toilet.buildingName || `화장실 ${toilet.toiletId}`}</Title>
+                <TitleRow>
+                    <Title>{toilet.buildingName || `화장실 ${toiletId}`}</Title>
+                    <Report src={report} onClick={() => handleToiletReport(toiletId)} />
+                </TitleRow>
                 <InfoRow>
                     <Rating>{toilet.rating === null ? 0.0.toFixed(1) : toilet.rating.toFixed(1)}</Rating>
                     <StarRating rating={toilet.rating} size="16px" />
@@ -585,6 +617,7 @@ const ToiletDetail = () => {
                                 {review.reviewAt.substr(0, 10)}
                             </Date>
                             <p>{review.comment}</p>
+                            <Report src={report} onClick={() => handleReviewReport(review.reviewId)} />
                         </div>
                     ))}
                 </ReviewList>
