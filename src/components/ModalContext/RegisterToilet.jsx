@@ -206,6 +206,9 @@ export default function RegisterToilet() {
             return;
         }
 
+        const token =
+        localStorage.getItem('token') || sessionStorage.getItem('token');
+
         // 등록 api 호출
         axios
             .post(`/api/toilet`, 
@@ -221,7 +224,9 @@ export default function RegisterToilet() {
                 hasHandicapAccess: hasHandicapAccess,
                 hasBidet: hasBidet,
                 hasTissue: hasTissue,
-            })
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+        )
             .then((res) => {
                 alert('등록되었습니다!');
                 console.log(res.data);
