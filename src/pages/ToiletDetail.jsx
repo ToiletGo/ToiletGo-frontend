@@ -281,6 +281,56 @@ const Report = styled.img`
     cursor: pointer;
 `;
 
+const ModalOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+`;
+
+const ModalContent = styled.div`
+    background-color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+`;
+
+const ModalTitle = styled.div`
+    font-size: 18px;
+    font-weight: bold;
+`;
+
+const ModalTextarea = styled.textarea`
+    resize: none;
+    height: 80px;
+    padding: 10px;
+    font-size: 14px;
+`;
+
+const ModalButton = styled.button`
+    align-self: flex-end;
+    padding: 8px 15px;
+    background-color: #4a95e5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #3b7dd8;
+    }
+`;
+
+
 const ToiletDetail = () => {
     const reviewList = [
         {
@@ -337,7 +387,9 @@ const ToiletDetail = () => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [reviews, setReviews] = useState([]);
-    
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState('');
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -483,6 +535,12 @@ const ToiletDetail = () => {
     }
 
     const handleToiletReport = (toiletId) => {
+        if (!isLoggedIn) {
+            alert('로그인 후 신고할 수 있습니다.');
+            navigate('/login');
+        }
+
+        /*
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         axios  
             .post(`/api/report/create`, {
@@ -501,6 +559,8 @@ const ToiletDetail = () => {
                 console.error('신고 실패:', err);
                 alert('신고에 실패했습니다. 나중에 다시 시도해주세요.');
             });
+        */
+        setIsReportModalOpen(true);
     }
 
     const handleReviewReport = (reviewId) => {
@@ -510,7 +570,9 @@ const ToiletDetail = () => {
         }
 
         // 신고 항목 선택
+        setIsReportModalOpen(true);
 
+        /*
         // 신고 API 호출
         axios
             .post(`/api/report/create`, {
@@ -525,7 +587,20 @@ const ToiletDetail = () => {
                 console.error('신고 실패:', err);
                 alert('신고에 실패했습니다. 나중에 다시 시도해주세요.');
             });
+        */
     }
+
+    const handleReportSubmit = () => {
+        if (!reportReason.trim()) {
+            alert("신고 사유를 입력해주세요.");
+            return;
+        }
+
+        // 여기에 실제 신고 API 호출이 들어갈 수 있음
+        alert("신고가 완료되었습니다.");
+        setIsReportModalOpen(false);
+        setReportReason('');
+    };
 
     // 만약 toilet이 아직 로딩 중이라면 로딩 화면을 보여줌
     if (!toilet) {
@@ -648,6 +723,19 @@ const ToiletDetail = () => {
                     ))}
                 </ReviewList>
             </InfoContainer>
+            {isReportModalOpen && (
+                <ModalOverlay onClick={() => setIsReportModalOpen(false)}>
+                    <ModalContent onClick={(e) => e.stopPropagation()}>
+                        <ModalTitle>신고 사유를 입력해주세요</ModalTitle>
+                        <ModalTextarea 
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            placeholder="신고 내용을 입력하세요..."
+                        />
+                        <ModalButton onClick={handleReportSubmit}>신고하기</ModalButton>
+                    </ModalContent>
+                </ModalOverlay>
+            )}
         </Wrapper>
     )
 }
