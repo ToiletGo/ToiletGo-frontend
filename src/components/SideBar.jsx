@@ -43,19 +43,18 @@ const SideBar = () => {
     const handleLogin = async () => {
         if (isLoggedIn) {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-
-            await axios
-                .post(`/logout`, null, {
+            try {
+                await axios.post(`/logout`, {}, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                })
-                .then(() => {
-                    logout(); // 토큰 제거
-                    alert('로그아웃되었습니다.');
-                    setSelectedMenu(0);
-                })
-                .catch(err => { console.error('로그아웃 실패:', err); });
+                });
+            } catch (err) {
+                console.warn('서버 로그아웃 실패 (무시):', err);
+            } finally {
+                logout();
+                alert('로그아웃되었습니다.');
+            }
         } else {
             navigate('/login');
         }
@@ -63,6 +62,7 @@ const SideBar = () => {
 
     const openMenu = (index) => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
         if (!token) {
             alert('로그인이 필요합니다.');
             navigate('/login');

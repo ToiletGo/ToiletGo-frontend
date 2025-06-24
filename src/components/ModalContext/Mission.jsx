@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useAuth } from '../../hooks/useAuth.js';
+import axios from '../../api/axios.js';
 import pointIcon from '../../assets/icon/point.svg';
 
 const Wrapper = styled.div`
@@ -185,11 +187,35 @@ const Mission = () => {
         },
     ];
 
+    const { userId } = useAuth();
+    const [missions, setMissions] = useState([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        axios
+            .post(`/api/missions/get`, {
+                userId: userId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((res) => {
+                console.log(res.data);
+                setMissions(missionList);
+            })
+            .catch((error) => {
+                console.log("미션 목록 받아오기 실패: ", error);
+                setMissions(missionList);
+            })
+
+    }, [])
+
     return (
         <Wrapper>
             <h2>미션</h2>
             <Container >
-                {missionList.map((mission) => (
+                {missions.map((mission) => (
                     <Row key={mission.mission_id}>
                         <Header>
                             <Name>

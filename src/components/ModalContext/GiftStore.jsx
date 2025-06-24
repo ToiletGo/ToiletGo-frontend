@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../../hooks/useAuth.js';
+import axios from '../../api/axios.js';
 import pointIcon from '../../assets/icon/point.svg';
 import coffee from '../../assets/images/gift/CoffeeGift.png';
 import cake from '../../assets/images/gift/CakeGift.png';
@@ -103,7 +104,7 @@ const GiftStore = () => {
     ];
 
     const { userId } = useAuth();
-    const [point, setPoint] = useState(0);
+    const [point, setPoint] = useState(3000);
     const [giftList, setGiftList] = useState(tempList);
 
     useEffect(() => {
@@ -117,7 +118,6 @@ const GiftStore = () => {
                 const initialPoint = res.data.userPoint || 0;
                 setPoint(initialPoint);
             })
-        setPoint(initialPoint);
         
     }, []);
 
