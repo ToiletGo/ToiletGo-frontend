@@ -36,7 +36,7 @@ const BarElement = styled.div`
 `;
 
 const SideBar = () => {
-    const { isLoggedIn, logout } = useAuth();
+    const { userId, isLoggedIn, logout } = useAuth();
     const [selectedMenu, setSelectedMenu] = useState(0);
     const navigate = useNavigate();
     
@@ -100,6 +100,11 @@ const SideBar = () => {
                     <BarElement selected={selectedMenu === 5} onClick={() => openMenu(5)}>
                         내 선물
                     </BarElement>
+                    {userId === "admin" && ( 
+                        <BarElement selected={false} onClick={handleReport}>
+                            신고 처리
+                        </BarElement>
+                    )}
                 </Outer>
             </Wrapper>
             {selectedMenu !== 0 && (
