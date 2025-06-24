@@ -331,12 +331,12 @@ const ToiletDetail = () => {
     ];
 
     const { toiletId } = useParams(); // URI 파라미터로부터 toiletId를 가져옴
-    const { isLoggedIn, logout } = useAuth();
+    const { userId, isLoggedIn, logout } = useAuth();
     const [toilet, setToilet] = useState(null);
     const [showTitle, setShowTitle] = useState(false);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
-    const [reviews, setReviews] = useState(reviewList);
+    const [reviews, setReviews] = useState([]);
     
     const navigate = useNavigate();
 
@@ -441,7 +441,7 @@ const ToiletDetail = () => {
             alert('별점을 선택해주세요.');
             return;
         }
-
+        /*
         // 리뷰 등록 API 호출
         axios
             .post(`/api/reviews/create`, {
@@ -456,6 +456,29 @@ const ToiletDetail = () => {
             .catch((err) => {
                 console.error('리뷰 등록 실패:', err);
             })
+        */
+
+        // 새 리뷰 생성 (user 정보는 임의로 설정)
+        const newReview = {
+            reviewId: 1, // 임시 ID
+            userId: userId,
+            userName: '성유3',
+            userTrust: 5, // 임시값 (필요 시 더 정교하게)
+            userProfileImg: defaultImg,
+            toiletId: toiletId,
+            rating: rating,
+            comment: comment,
+            reviewAt: '2025-06-24'
+        };
+
+        const newToilet = {
+            buildingName: toilet.buildingName,
+            rating: rating,
+            reviewCount: 1,
+        }
+
+        setReviews([...reviews, newReview]); // 기존 리뷰에 추가
+        setToilet(newToilet);
         alert("리뷰가 등록되었습니다.");
     }
 
